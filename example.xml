@@ -1,0 +1,64 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<project basedir="." name="sweetened-example" default=".classpath">
+
+    <property file="jar.properties"/>
+    <property name="lib.dir" value="lib"/>
+    <property name="target.dir" value="target"/>
+    <property name="project.name" value="${name}"/>
+
+    <path id="compile.classpath">
+        <fileset dir="${lib.dir}">
+            <include name="${ant.jar}" />
+        </fileset>
+        <fileset dir="${target.dir}">
+            <include name="sweetened.jar" />
+        </fileset>
+    </path>
+
+	<target name="init">
+        <typedef resource="com/googlecode/sweetened/sweetened.xml">
+            <classpath>
+                <fileset dir="${target.dir}">
+                    <include name="sweetened.jar"/>
+                </fileset>
+            </classpath>
+        </typedef>
+	</target>
+	
+	<target name=".classpath" depends="init">
+		<sweetened file="${target.dir}/varClasspath" kind="var" var="ALEXANDRIA_HOME" sourcepath="src" property="sweetenedVar" debug="true">
+            <classpath refid="compile.classpath" />
+			<![CDATA[<?xml version="1.0" encoding="UTF-8"?>
+			<classpath>
+                <classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
+                <classpathentry kind="lib" path="bin/log4j/dev"/>
+                <classpathentry kind="lib" path="etc"/>
+                ${sweetenedVar}
+                <classpathentry kind="lib" path="resources/publisher"/>
+                <classpathentry kind="lib" path="resources/rules"/>
+                <classpathentry kind="lib" path="resources/ui"/>
+                <classpathentry kind="src" path="src"/>
+                <classpathentry kind="src" path="test/java"/>
+                <classpathentry kind="output" path="build/classes"/>
+	        </classpath>]]>
+	    </sweetened>
+        <sweetened file="${target.dir}/libClasspath" kind="lib" sourcepath="src">
+            <classpath refid="compile.classpath" />
+            <![CDATA[<?xml version="1.0" encoding="UTF-8"?>
+                <classpath>
+            	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
+                <classpathentry kind="lib" path="bin/log4j/dev"/>
+                <classpathentry kind="lib" path="etc"/>
+                ${sweetened}
+                <classpathentry kind="lib" path="resources/publisher"/>
+                <classpathentry kind="lib" path="resources/rules"/>
+                <classpathentry kind="lib" path="resources/ui"/>
+                <classpathentry kind="src" path="src"/>
+                <classpathentry kind="src" path="test/java"/>
+                <classpathentry kind="output" path="build/classes"/>
+            </classpath>]]>
+        </sweetened>
+	</target>
+	
+</project>

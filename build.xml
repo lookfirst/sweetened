@@ -1,0 +1,143 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<project basedir="." name="sweetened" default="all">
+
+    <property file="user.properties" />
+    <property file="${user.home}/build.properties" />
+    <property file="jar.properties"/>
+    <property file="build.credentials.properties" />
+
+    <property name="name" value="${ant.project.name}"/>
+
+    <property name="build.dir" location="target" />
+    <property name="classes.dir" location="${build.dir}/classes" />
+    <property name="build.javadoc.dir" location="${build.dir}/javadoc" />
+
+	<property name="javadoc.dir" location="javadoc" />
+    <property name="lib.dir" value="lib"/>
+    <property name="src.dir" location="src" />
+
+	<property name="build.debug" value="on" />
+    <property name="build.deprecation" value="on" />
+    <property name="ant.build.javac.target" value="1.5" />
+    <property name="ant.build.javac.source" value="1.5" />
+
+    <tstamp/>
+    <tstamp>
+        <format property="YEAR" pattern="yyyy" />
+    </tstamp>
+
+    <path id="compile.classpath">
+        <fileset dir="${lib.dir}">
+            <include name="${ant.jar}" />
+        </fileset>
+    </path>
+
+	<target name="init">
+        <typedef resource="com/googlecode/svntask/svntask.xml">
+            <classpath>
+                <fileset dir="${lib.dir}">
+                    <include name="svnkit.jar"/>
+                    <include name="svntask.jar"/>
+                </fileset>
+            </classpath>
+        </typedef>
+
+        <svn><info path="${basedir}" revisionProperty="revisionVersion" /></svn>
+
+        <taskdef classname="net.bluecow.googlecode.ant.GoogleCodeUploadTask" classpath="${lib.dir}/ant-googlecode-0.0.2.jar" name="gcupload"/>
+
+        <!--  A hack because svnant does not respect Ant's properties can't be overwritten rule. -->
+        <property name="version" value="${revisionVersion}" />
+        <property name="build.version" value="${revisionVersion}" />
+
+        <property name="build.dist.dir" location="${build.dir}/${ant.project.name}-${version}"/>
+        <property name="build.dist.zip" location="${build.dir}/${ant.project.name}-${version}.zip"/>
+	</target>
+	
+    <target name=".classpath" depends="jar">
+        <typedef resource="com/googlecode/sweetened/sweetened.xml">
+            <classpath>
+                <fileset dir="${build.dir}">
+                    <include name="sweetened.jar"/>
+                </fileset>
+            </classpath>
+        </typedef>
+        <sweetened file=".classpath" kind="lib">
+            <classpath refid="compile.classpath" />
+            <![CDATA[<?xml version="1.0" encoding="UTF-8"?>
+	    	<classpath>
+	    	    <classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
+                ${sweetened}
+	    	    <classpathentry kind="src" path="src"/>
+	    	    <classpathentry kind="output" path="target/classes"/>
+	    	</classpath>]]>
+        </sweetened>
+	</target>
+	
+    <target name="classes" depends="init">
+        <mkdir dir="${build.dir}/classes"/>
+
+        <javac srcdir="${src.dir}"
+                destdir="${classes.dir}"
+                debug="${build.debug}"
+                deprecation="${build.deprecation}"
+            >
+
+            <classpath refid="compile.classpath" />
+        </javac>
+
+        <sync todir="${build.dir}/classes">
+            <preserveintarget>
+                <include name="**/*.class"/>
+            </preserveintarget>
+            <fileset dir="src" defaultexcludes="yes">
+                <include name="**/*.xml"/>
+            </fileset>
+        </sync>
+    </target>
+
+    <target name="jar" depends="classes">
+        <jar jarfile="${build.dir}/sweetened.jar" basedir="${build.dir}/classes"
+              includes="**/*.class,**/*.xml">
+            <manifest>
+                <attribute name="Specification-Version" value="${version}" />
+                <attribute name="Implementation-Version" value="r${svn.revision}" />
+                <attribute name="Main-Class" value="com.googlecode.sweetened.Version" />
+            </manifest>
+        </jar>
+    </target>
+
+    <target name="clean" depends="init">
+        <delete dir="${build.dir}"/>
+    </target>
+
+    <target name="all" depends="jar"/>
+
+    <target name="javadoc" depends="init">
+        <mkdir dir="${build.javadoc.dir}"/>
+        <javadoc 
+            destdir="${build.javadoc.dir}"
+            packagenames="*"
+            classpathref="compile.classpath"
+            author="true"
+            version="true"
+            Windowtitle="Sweetened Javadoc"
+        >
+            <fileset dir="${src.dir}">
+                <exclude name="**/test/**" />
+                <exclude name="**/*.xml" />
+            </fileset>
+            <doctitle><![CDATA[<h1>Sweetened</h1>]]></doctitle>
+            <bottom><![CDATA[<i>Copyright &#169; ${YEAR} Jon Stevens. All Rights Reserved. Build version: ${build.version}</i>]]></bottom>
+        </javadoc>
+
+    	<sync todir="${javadoc.dir}" includeEmptyDirs="true">
+            <fileset dir="${build.javadoc.dir}" />
+            <preserveintarget>
+                <include name="**/.svn/**"/>
+            </preserveintarget>
+        </sync>
+    </target>
+
+</project>
