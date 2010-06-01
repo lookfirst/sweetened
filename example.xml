@@ -1,11 +1,18 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<project basedir="." name="sweetened-example" default=".classpath">
+<project basedir="." name="sweetened-example" default=".eclipse">
 
     <property file="jar.properties"/>
     <property name="lib.dir" value="lib"/>
     <property name="target.dir" value="target"/>
-    <property name="project.name" value="${name}"/>
+    <property name="project.name" value="${ant.project.name}"/>
+    <property name="alexandria.dir" value="../alexandria"/>
+    <!--
+        Inside of the alexandria jar.properties file, it looks like this:
+
+        junit.jar=thirdparty/junit-2.8.2.jar
+    -->
+    <property file="${alexandria.dir}/jar.properties"/>
 
     <path id="compile.classpath">
         <fileset dir="${lib.dir}">
@@ -13,6 +20,9 @@
         </fileset>
         <fileset dir="${target.dir}">
             <include name="sweetened.jar" />
+        </fileset>
+        <fileset dir="${alexandria.dir}">
+            <include name="${junit.jar}" />
         </fileset>
     </path>
 
@@ -25,9 +35,11 @@
             </classpath>
         </typedef>
 	</target>
-	
-	<target name=".classpath" depends="init">
-		<sweetened file="${target.dir}/varClasspath" kind="var" var="ALEXANDRIA_HOME" sourcepath="src" property="sweetenedVar" debug="true">
+
+	<target name=".eclipse" depends="init">
+		<sweetened file="${target.dir}/varClasspath"
+		    var="ALEXANDRIA_HOME" varpath="${alexandria.dir}" sourcepath="src"
+		    property="sweetenedVar" debug="true">
             <classpath refid="compile.classpath" />
 			<![CDATA[<?xml version="1.0" encoding="UTF-8"?>
 			<classpath>
@@ -43,7 +55,7 @@
                 <classpathentry kind="output" path="build/classes"/>
 	        </classpath>]]>
 	    </sweetened>
-        <sweetened file="${target.dir}/libClasspath" kind="lib" sourcepath="src">
+        <sweetened file="${target.dir}/libClasspath" sourcepath="src" debug="true">
             <classpath refid="compile.classpath" />
             <![CDATA[<?xml version="1.0" encoding="UTF-8"?>
                 <classpath>
@@ -59,6 +71,25 @@
                 <classpathentry kind="output" path="build/classes"/>
             </classpath>]]>
         </sweetened>
+
+        <echo file="${target.dir}/project"><![CDATA[<?xml version="1.0" encoding="UTF-8"?>
+            <projectDescription>
+                <name>${project.name}</name>
+                <comment></comment>
+                <projects>
+                </projects>
+                <buildSpec>
+                    <buildCommand>
+                        <name>org.eclipse.jdt.core.javabuilder</name>
+                        <arguments>
+                        </arguments>
+                    </buildCommand>
+                </buildSpec>
+                <natures>
+                    <nature>org.eclipse.jdt.core.javanature</nature>
+                </natures>
+            </projectDescription>]]>
+        </echo>
 	</target>
-	
+
 </project>

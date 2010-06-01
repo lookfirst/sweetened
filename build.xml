@@ -7,7 +7,7 @@
     <property file="jar.properties"/>
     <property file="build.credentials.properties" />
 
-    <property name="name" value="${ant.project.name}"/>
+    <property name="project.name" value="${ant.project.name}"/>
 
     <property name="base.dir" location="." />
     <property name="build.dir" location="target" />
@@ -55,8 +55,8 @@
         <property name="build.dist.dir" location="${build.dir}/${ant.project.name}-${version}"/>
         <property name="build.dist.zip" location="${build.dir}/${ant.project.name}-${version}.zip"/>
 	</target>
-	
-    <target name=".classpath" depends="jar">
+
+    <target name=".eclipse" depends="jar">
         <typedef resource="com/googlecode/sweetened/sweetened.xml">
             <classpath>
                 <fileset dir="${build.dir}">
@@ -64,7 +64,7 @@
                 </fileset>
             </classpath>
         </typedef>
-        <sweetened file=".classpath" kind="lib">
+        <sweetened file=".classpath">
             <classpath refid="compile.classpath" />
             <![CDATA[<?xml version="1.0" encoding="UTF-8"?>
 	    	<classpath>
@@ -74,8 +74,26 @@
 	    	    <classpathentry kind="output" path="target/classes"/>
 	    	</classpath>]]>
         </sweetened>
+        <echo file=".project"><![CDATA[<?xml version="1.0" encoding="UTF-8"?>
+            <projectDescription>
+                <name>${project.name}</name>
+                <comment></comment>
+                <projects>
+                </projects>
+                <buildSpec>
+                    <buildCommand>
+                        <name>org.eclipse.jdt.core.javabuilder</name>
+                        <arguments>
+                        </arguments>
+                    </buildCommand>
+                </buildSpec>
+                <natures>
+                    <nature>org.eclipse.jdt.core.javanature</nature>
+                </natures>
+            </projectDescription>]]>
+        </echo>
 	</target>
-	
+
     <target name="classes" depends="init">
         <mkdir dir="${build.dir}/classes"/>
 
@@ -117,7 +135,7 @@
 
     <target name="javadoc" depends="init">
         <mkdir dir="${build.javadoc.dir}"/>
-        <javadoc 
+        <javadoc
             destdir="${build.javadoc.dir}"
             packagenames="*"
             classpathref="compile.classpath"
