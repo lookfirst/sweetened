@@ -9,6 +9,7 @@
 
     <property name="name" value="${ant.project.name}"/>
 
+    <property name="base.dir" location="." />
     <property name="build.dir" location="target" />
     <property name="classes.dir" location="${build.dir}/classes" />
     <property name="build.javadoc.dir" location="${build.dir}/javadoc" />
@@ -140,4 +141,51 @@
         </sync>
     </target>
 
+    <target name="dist" depends="clean, jar, javadoc">
+        <copy todir="${build.dist.dir}">
+            <fileset dir="${build.dir}">
+                <include name="javadoc/**" />
+            </fileset>
+
+            <fileset dir=".">
+                <include name="build.xml" />
+                <include name="README.html" />
+            </fileset>
+        </copy>
+
+        <copy todir="${build.dist.dir}">
+            <fileset dir="${build.dir}">
+                <include name="*.jar" />
+            </fileset>
+        </copy>
+
+        <copy todir="${build.dist.dir}/lib">
+            <fileset dir="lib">
+                <include name="*.jar" />
+            </fileset>
+        </copy>
+
+        <copy todir="${build.dist.dir}/src">
+            <fileset dir="${base.dir}/src">
+                <include name="**" />
+            </fileset>
+        </copy>
+
+        <dirname property="build.dist.dir.dirname" file="${build.dist.dir}" />
+        <basename property="build.dist.dir.basename" file="${build.dist.dir}" />
+
+        <zip zipfile="${build.dist.zip}" basedir="${build.dist.dir.dirname}">
+            <include name="${build.dist.dir.basename}/**" />
+        </zip>
+    </target>
+
+    <target name="upload" depends="init">
+        <gcupload projectname="sardine"
+            userName="${gc.username}"
+            password="${gc.password}"
+            filename="${build.dist.zip}"
+            targetfilename="${build.dist.zip}"
+            summary="Sardine distribution"
+            labels="Featured, Type-Package, OpSys-All" />
+    </target>
 </project>
