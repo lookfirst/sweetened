@@ -48,7 +48,7 @@ public class SweetenedTask extends Task
         {
             if (getVarpath() == null)
             {
-                throw new BuildException("Attibute 'varpath' cannot be null when kind=\"var\".");
+                throw new BuildException("Attibute 'varpath' cannot be null when the 'var' attribute is declared.");
             }
 
             this.getProject().setProperty(this.getProperty(), this.getFormattedVarPath());
@@ -189,6 +189,7 @@ public class SweetenedTask extends Task
 
     /**
      * The Eclipse variable that is used to locate the classpath resource.
+     * You must also define the varpath attribute.
      */
     public void setVar(String var) {
         this.var = var;
@@ -196,9 +197,26 @@ public class SweetenedTask extends Task
 
     /**
      * The Eclipse variable that is used to locate the classpath resource.
+     * You must also define the varpath attribute.
      */
     public String getVar() {
         return var;
+    }
+
+    /**
+     * The path that is defined to the variable in Eclipse. This is required
+     * if the var attribute is defined.
+     */
+    public void setVarpath(String varpath) {
+        this.varpath = varpath;
+    }
+
+    /**
+     * The path that is defined to the variable in Eclipse. This is required
+     * if the var attribute is defined.
+     */
+    public String getVarpath() {
+        return varpath;
     }
 
     /**
@@ -308,21 +326,5 @@ public class SweetenedTask extends Task
      */
     public boolean isDebug() {
         return debug;
-    }
-
-    /**
-     * If kind="var", you need to define the path
-     * that is also defined to the variable in Eclipse.
-     */
-    public void setVarpath(String varpath) {
-        this.varpath = varpath;
-    }
-
-    /**
-     * If kind="var", you need to define the path
-     * that is also defined to the variable in Eclipse.
-     */
-    public String getVarpath() {
-        return varpath;
     }
 }
