@@ -13,34 +13,32 @@
         junit.jar=thirdparty/junit-2.8.2.jar
     -->
     <property file="${alexandria.dir}/jar.properties"/>
+    <typedef resource="com/googlecode/sweetened/sweetened.xml">
+        <classpath>
+            <fileset dir="${target.dir}">
+                <include name="sweetened.jar"/>
+            </fileset>
+        </classpath>
+    </typedef>
 
-    <path id="compile.classpath">
-        <fileset dir="${lib.dir}">
-            <include name="${ant.jar}" />
-        </fileset>
-        <fileset dir="${target.dir}">
-            <include name="sweetened.jar" />
-        </fileset>
-        <fileset dir="${alexandria.dir}">
-            <include name="${junit.jar}" />
-        </fileset>
-    </path>
+    <sweetenedPath id="filelist.classpath">
+        <sweetenedFileList dir="${lib.dir}">
+            <sweetenedFile name="${ant.jar}" scope="compile" />
+            <sweetenedFile name="svntask.jar" scope="runtime" />
+        </sweetenedFileList>
+        <sweetenedFileList dir="${target.dir}">
+            <sweetenedFile name="sweetened.jar" src="src" scope="runtime" />
+        </sweetenedFileList>
+        <sweetenedFileList dir="${alexandria.dir}">
+            <sweetenedFile name="${junit.jar}" scope="compile" />
+        </sweetenedFileList>
+    </sweetenedPath>
 
-	<target name="init">
-        <typedef resource="com/googlecode/sweetened/sweetened.xml">
-            <classpath>
-                <fileset dir="${target.dir}">
-                    <include name="sweetened.jar"/>
-                </fileset>
-            </classpath>
-        </typedef>
-	</target>
-
-	<target name=".eclipse" depends="init">
-		<sweetened file="${target.dir}/varClasspath"
+	<target name=".eclipse">
+		<sweetenedClasspath file="${target.dir}/varClasspath"
 		    var="ALEXANDRIA_HOME" varpath="${alexandria.dir}" sourcepath="src"
 		    property="sweetenedVar" debug="true">
-            <classpath refid="compile.classpath" />
+            <sweetenedBits refid="filelist.classpath" />
 			<![CDATA[<?xml version="1.0" encoding="UTF-8"?>
 			<classpath>
                 <classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
@@ -48,15 +46,13 @@
                 <classpathentry kind="lib" path="etc"/>
                 ${sweetenedVar}
                 <classpathentry kind="lib" path="resources/publisher"/>
-                <classpathentry kind="lib" path="resources/rules"/>
-                <classpathentry kind="lib" path="resources/ui"/>
                 <classpathentry kind="src" path="src"/>
                 <classpathentry kind="src" path="test/java"/>
                 <classpathentry kind="output" path="build/classes"/>
 	        </classpath>]]>
-	    </sweetened>
-        <sweetened file="${target.dir}/libClasspath" sourcepath="src" debug="true">
-            <classpath refid="compile.classpath" />
+	    </sweetenedClasspath>
+        <sweetenedClasspath file="${target.dir}/libClasspath" sourcepath="src" debug="true">
+            <sweetenedBits refid="filelist.classpath" />
             <![CDATA[<?xml version="1.0" encoding="UTF-8"?>
                 <classpath>
             	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
@@ -64,13 +60,11 @@
                 <classpathentry kind="lib" path="etc"/>
                 ${sweetened}
                 <classpathentry kind="lib" path="resources/publisher"/>
-                <classpathentry kind="lib" path="resources/rules"/>
-                <classpathentry kind="lib" path="resources/ui"/>
                 <classpathentry kind="src" path="src"/>
                 <classpathentry kind="src" path="test/java"/>
                 <classpathentry kind="output" path="build/classes"/>
             </classpath>]]>
-        </sweetened>
+        </sweetenedClasspath>
 
         <echo file="${target.dir}/project"><![CDATA[<?xml version="1.0" encoding="UTF-8"?>
             <projectDescription>
