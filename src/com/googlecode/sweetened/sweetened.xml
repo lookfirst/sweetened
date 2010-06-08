@@ -2,7 +2,7 @@
 <antlib>
   <taskdef name="sweetenedClasspath" classname="com.googlecode.sweetened.SweetenedClasspathTask" />
   <taskdef name="sweetenedLaunch" classname="com.googlecode.sweetened.SweetenedLaunchTask" />
-  <typedef name="sweetenedFile" classname="com.googlecode.sweetened.typedef.SweetenedFileResource" />
-  <typedef name="sweetenedFileList" classname="com.googlecode.sweetened.typedef.SweetenedFileList" />
-  <typedef name="sweetenedPath" classname="com.googlecode.sweetened.typedef.SweetenedPath" />
+  <typedef name="sfile" classname="com.googlecode.sweetened.typedef.SweetenedFileResource" />
+  <typedef name="sfilelist" classname="com.googlecode.sweetened.typedef.SweetenedFileList" />
+  <typedef name="spath" classname="com.googlecode.sweetened.typedef.SweetenedPath" />
 </antlib>

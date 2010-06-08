@@ -21,18 +21,18 @@
         </classpath>
     </typedef>
 
-    <sweetenedPath id="filelist.classpath">
-        <sweetenedFileList dir="${lib.dir}">
-            <sweetenedFile name="${ant.jar}" scope="compile" />
-            <sweetenedFile name="svntask.jar" scope="runtime" />
-        </sweetenedFileList>
-        <sweetenedFileList dir="${target.dir}">
-            <sweetenedFile name="sweetened.jar" src="src" scope="runtime" />
-        </sweetenedFileList>
-        <sweetenedFileList dir="${alexandria.dir}">
-            <sweetenedFile name="${junit.jar}" scope="compile" />
-        </sweetenedFileList>
-    </sweetenedPath>
+    <spath id="filelist.classpath">
+        <sfilelist dir="${lib.dir}">
+            <sfile name="${ant.jar}" scope="compile" />
+            <sfile name="svntask.jar" scope="runtime" />
+        </sfilelist>
+        <sfilelist dir="${target.dir}">
+            <sfile name="sweetened.jar" src="src" scope="runtime" />
+        </sfilelist>
+        <sfilelist dir="${alexandria.dir}">
+            <sfile name="${junit.jar}" scope="compile" />
+        </sfilelist>
+    </spath>
 
 	<target name=".eclipse">
 		<sweetenedClasspath file="${target.dir}/varClasspath"
