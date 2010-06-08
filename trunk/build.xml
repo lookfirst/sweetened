@@ -28,11 +28,19 @@
         <format property="YEAR" pattern="yyyy" />
     </tstamp>
 
-    <path id="compile.classpath">
-        <fileset dir="${lib.dir}">
-            <include name="${ant.jar}" />
-        </fileset>
-    </path>
+    <typedef resource="com/googlecode/sweetened/sweetened.xml">
+        <classpath>
+            <fileset dir="${build.dir}">
+                <include name="sweetened.jar"/>
+            </fileset>
+        </classpath>
+    </typedef>
+
+    <sweetenedPath id="sweetened.classpath">
+        <sweetenedFileList dir="${lib.dir}">
+            <sweetenedFile name="${ant.jar}" scope="compile" src="../apache-ant-src-1.8.1/src/main" />
+        </sweetenedFileList>
+    </sweetenedPath>
 
 	<target name="init">
         <typedef resource="com/googlecode/svntask/svntask.xml">
@@ -57,15 +65,8 @@
 	</target>
 
     <target name=".eclipse" depends="jar">
-        <typedef resource="com/googlecode/sweetened/sweetened.xml">
-            <classpath>
-                <fileset dir="${build.dir}">
-                    <include name="sweetened.jar"/>
-                </fileset>
-            </classpath>
-        </typedef>
-        <sweetened file=".classpath">
-            <classpath refid="compile.classpath" />
+        <sweetenedClasspath file=".classpath">
+            <sweetenedBits refid="sweetened.classpath" />
             <![CDATA[<?xml version="1.0" encoding="UTF-8"?>
 	    	<classpath>
 	    	    <classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
@@ -73,7 +74,7 @@
 	    	    <classpathentry kind="src" path="src"/>
 	    	    <classpathentry kind="output" path="target/classes"/>
 	    	</classpath>]]>
-        </sweetened>
+        </sweetenedClasspath>
         <echo file=".project"><![CDATA[<?xml version="1.0" encoding="UTF-8"?>
             <projectDescription>
                 <name>${project.name}</name>
@@ -103,7 +104,7 @@
                 deprecation="${build.deprecation}"
             >
 
-            <classpath refid="compile.classpath" />
+            <classpath refid="sweetened.classpath" />
         </javac>
 
         <sync todir="${build.dir}/classes">
@@ -138,7 +139,7 @@
         <javadoc
             destdir="${build.javadoc.dir}"
             packagenames="*"
-            classpathref="compile.classpath"
+            classpathref="sweetened.classpath"
             author="true"
             version="true"
             Windowtitle="Sweetened Javadoc"

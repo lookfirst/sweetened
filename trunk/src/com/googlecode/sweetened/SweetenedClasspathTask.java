@@ -4,13 +4,16 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 
 import org.apache.tools.ant.BuildException;
-import org.apache.tools.ant.Task;
-import org.apache.tools.ant.types.Path;
+import org.apache.tools.ant.taskdefs.MatchingTask;
+
+import com.googlecode.sweetened.typedef.SweetenedFileList;
+import com.googlecode.sweetened.typedef.SweetenedFileResource;
+import com.googlecode.sweetened.typedef.SweetenedPath;
+import com.googlecode.sweetened.typedef.SweetenedScope;
 
 /**
  * Controller for the Sweetened ant Task. Sweetened generates
@@ -18,14 +21,14 @@ import org.apache.tools.ant.types.Path;
  *
  * @author jon stevens
  */
-public class SweetenedTask extends Task
+public class SweetenedClasspathTask extends MatchingTask
 {
     private String file;
     private String var;
     private String text;
     private String sourcepath;
     private String varpath;
-    private List<Path> classpaths = new ArrayList<Path>();
+    private List<SweetenedPath> classpaths = new ArrayList<SweetenedPath>();
     private String property = "sweetened";
     private boolean autoGen = true;
     private boolean debug = false;
@@ -35,7 +38,7 @@ public class SweetenedTask extends Task
      */
     protected void validate() throws BuildException
     {
-        if (getClasspaths().size() == 0)
+        if (getSweetenedBits().size() == 0)
         {
             throw new BuildException("Missing classpath element within a sweetened element");
         }
@@ -105,22 +108,38 @@ public class SweetenedTask extends Task
             File varpath = new File(this.getVarpath());
             String canocialPath = varpath.getCanonicalPath();
 
-    	    for (String jar : this.getJars())
+    	    for (SweetenedFileResource jar : this.getJars(SweetenedScope.COMPILE))
     	    {
-    	        File file = new File(jar);
-    	        if (file.exists())
+    	        File jarFile = jar.getFile();
+    	        if (jar.getFile().exists())
     	        {
         	        sb.append("<classpathentry kind=\"var\" ");
         	        sb.append("path=\"");
         	        // /Users/jon/alexandria/thirdparty/junit.jar -> ALEXANDRIA_HOME/thirdparty/junit.jar
-        	        sb.append(file.getCanonicalPath().replace(canocialPath, getVar()));
+        	        sb.append(jarFile.getCanonicalPath().replace(canocialPath, getVar()));
         	        sb.append("\"");
-        	        if (sourcepath != null)
+        	        if (jar.getSrc() != null)
         	        {
-                        String filename = sourcepath + "/" + file.getName();
+        	            File filePath = null;
+        	            if (jar.getSrc().startsWith("/"))
+        	                filePath = new File(jar.getSrc());
+        	            else
+        	                filePath = new File(this.getProject().getBaseDir(), jar.getSrc());
+
+        	            if (filePath.exists())
+        	            {
+                            String path = filePath.getCanonicalPath().replace(varpath.getCanonicalPath(), getVar());
+                            sb.append(" sourcepath=\"/");
+                            sb.append(path);
+                            sb.append("\"");
+        	            }
+        	        }
+        	        else if (sourcepath != null)
+        	        {
+                        String filename = sourcepath + "/" + jarFile.getName();
                         // Add in the sourcepath before the filename
                         // thirdparty/junit.jar -> thirdparty/src/junit.jar
-                        String path = file.getCanonicalPath().replace(file.getName(), filename);
+                        String path = jarFile.getCanonicalPath().replace(jarFile.getName(), filename);
                         if (new File(path).exists())
                         {
                             // Chop off the prefix path and replace it with the variable.
@@ -150,25 +169,49 @@ public class SweetenedTask extends Task
 	protected String getFormattedLibPath()
 	{
 	    StringBuffer sb = new StringBuffer();
-        for (String jar : this.getJars())
+        try
         {
-            sb.append("<classpathentry kind=\"lib\" ");
-            sb.append("path=\"");
-            sb.append(jar);
-            sb.append("\"");
-            File file = new File(jar);
-            if (sourcepath != null)
+            for (SweetenedFileResource jar : this.getJars(SweetenedScope.COMPILE))
             {
-                String filename = sourcepath + "/" + file.getName();
-                String path = file.getAbsolutePath().replace(file.getName(), filename);
-                if (new File(path).exists())
+                File jarFile = jar.getFile();
+
+                sb.append("<classpathentry kind=\"lib\" ");
+                sb.append("path=\"");
+                sb.append(jarFile.getCanonicalPath());
+                sb.append("\"");
+                if (jar.getSrc() != null)
                 {
-                    sb.append(" sourcepath=\"");
-                    sb.append(path);
-                    sb.append("\"");
+                    File filePath = null;
+                    if (jar.getSrc().startsWith("/"))
+                        filePath = new File(jar.getSrc());
+                    else
+                        filePath = new File(this.getProject().getBaseDir(), jar.getSrc());
+
+                    if (filePath.exists())
+                    {
+                        sb.append(" sourcepath=\"");
+                        sb.append(filePath.getCanonicalPath());
+                        sb.append("\"");
+                    }
                 }
+                else if (sourcepath != null)
+                {
+                    String filename = sourcepath + "/" + jarFile.getName();
+                    String path = jarFile.getCanonicalPath().replace(jarFile.getName(), filename);
+                    if (new File(path).exists())
+                    {
+                        sb.append(" sourcepath=\"");
+                        sb.append(path);
+                        sb.append("\"");
+                    }
+                }
+                sb.append("/>\n");
             }
-            sb.append("/>\n");
+        }
+        catch (IOException ex)
+        {
+            // Really shouldn't happen
+            throw new BuildException(ex);
         }
         return sb.toString();
 	}
@@ -236,26 +279,38 @@ public class SweetenedTask extends Task
     /**
      * The list of ant &lt;classpath&gt; elements.
      */
-    public void addClasspath(Path classpath) {
-        classpaths.add(classpath);
+    public void addConfiguredSweetenedBits(SweetenedPath classpath) {
+        // Lame... but seems to work. At this point, we just want to
+        // resolve by reference.
+        SweetenedPath path = (SweetenedPath)this.getProject().getReference(classpath.getRefid().getRefId());
+        classpaths.add(path);
     }
 
     /**
      * The list of ant &lt;classpath&gt; elements.
      */
-    public List<Path> getClasspaths() {
+    public List<SweetenedPath> getSweetenedBits() {
         return classpaths;
     }
 
     /**
      * Combines all the classpath elements into
-     * a List of Strings.
+     * a List of Strings. Only retreives jars of
+     * a specific scope.
      */
-    protected List<String> getJars() {
-        List<String> jars = new ArrayList<String>();
-        for (Path path : getClasspaths())
+    protected List<SweetenedFileResource> getJars(SweetenedScope scope) {
+        List<SweetenedFileResource> jars = new ArrayList<SweetenedFileResource>();
+        for (SweetenedPath path : getSweetenedBits())
         {
-            jars.addAll(Arrays.asList(path.list()));
+            for (SweetenedFileList sfl : path.getFileList())
+            {
+                for (SweetenedFileResource sfr : sfl.getFileResources())
+                {
+                    SweetenedScope sfrScope = SweetenedScope.safeValueOf(sfr.getScope());
+                    if (sfrScope != null && (sfrScope == scope || sfrScope == SweetenedScope.ALL))
+                        jars.add(sfr);
+                }
+            }
         }
         return jars;
     }
