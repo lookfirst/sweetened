@@ -28,21 +28,28 @@
         <format property="YEAR" pattern="yyyy" />
     </tstamp>
 
+    <!-- Useful for the bootstrap process
+    <path id="sweetened.classpath">
+        <filelist dir="${lib.dir}">
+            <file name="${ant.jar}" />
+        </filelist>
+    </path>
+    -->
     <typedef resource="com/googlecode/sweetened/sweetened.xml">
         <classpath>
-            <fileset dir="${build.dir}">
+            <fileset dir="${lib.dir}">
                 <include name="sweetened.jar"/>
             </fileset>
         </classpath>
     </typedef>
 
-    <sweetenedPath id="sweetened.classpath">
-        <sweetenedFileList dir="${lib.dir}">
-            <sweetenedFile name="${ant.jar}" scope="compile" src="../apache-ant-src-1.8.1/src/main" />
-        </sweetenedFileList>
-    </sweetenedPath>
+    <spath id="sweetened.classpath">
+        <sfilelist dir="${lib.dir}">
+            <sfile name="${ant.jar}" scope="compile" src="../apache-ant-src-1.8.1/src/main" />
+        </sfilelist>
+    </spath>
 
-	<target name="init">
+    <target name="init">
         <typedef resource="com/googlecode/svntask/svntask.xml">
             <classpath>
                 <fileset dir="${lib.dir}">

@@ -106,7 +106,7 @@ public class SweetenedClasspathTask extends MatchingTask
 	    {
 	        // Get the absolute path to the Eclipse variable.
             File varpath = new File(this.getVarpath());
-            String canocialPath = varpath.getCanonicalPath();
+            String varCanonicalPath = varpath.getCanonicalPath();
 
     	    for (SweetenedFileResource jar : this.getJars(SweetenedScope.COMPILE))
     	    {
@@ -116,8 +116,10 @@ public class SweetenedClasspathTask extends MatchingTask
         	        sb.append("<classpathentry kind=\"var\" ");
         	        sb.append("path=\"");
         	        // /Users/jon/alexandria/thirdparty/junit.jar -> ALEXANDRIA_HOME/thirdparty/junit.jar
-        	        sb.append(jarFile.getCanonicalPath().replace(canocialPath, getVar()));
+        	        sb.append(jarFile.getCanonicalPath().replace(varCanonicalPath, getVar()));
         	        sb.append("\"");
+
+        	        // the jar's src= attribute overrides task sourcepath
         	        if (jar.getSrc() != null)
         	        {
         	            File filePath = null;
@@ -128,7 +130,8 @@ public class SweetenedClasspathTask extends MatchingTask
 
         	            if (filePath.exists())
         	            {
-                            String path = filePath.getCanonicalPath().replace(varpath.getCanonicalPath(), getVar());
+        	                // If the sourcepath can be replaced with a variable reference, then do so.
+                            String path = filePath.getCanonicalPath().replace(varCanonicalPath, getVar());
                             sb.append(" sourcepath=\"/");
                             sb.append(path);
                             sb.append("\"");
@@ -144,7 +147,7 @@ public class SweetenedClasspathTask extends MatchingTask
                         {
                             // Chop off the prefix path and replace it with the variable.
                             // /Users/jon/alexandria/thirdparty/src/junit.jar -> /ALEXANDRIA_HOME/thirdparty/src/junit.jar
-                            path = path.replace(varpath.getCanonicalPath(), getVar());
+                            path = path.replace(varCanonicalPath, getVar());
                             sb.append(" sourcepath=\"/");
                             sb.append(path);
                             sb.append("\"");
@@ -175,9 +178,11 @@ public class SweetenedClasspathTask extends MatchingTask
             {
                 File jarFile = jar.getFile();
 
+                String jarCanonicalPath = jarFile.getCanonicalPath();
+
                 sb.append("<classpathentry kind=\"lib\" ");
                 sb.append("path=\"");
-                sb.append(jarFile.getCanonicalPath());
+                sb.append(jarCanonicalPath);
                 sb.append("\"");
                 if (jar.getSrc() != null)
                 {
@@ -197,7 +202,7 @@ public class SweetenedClasspathTask extends MatchingTask
                 else if (sourcepath != null)
                 {
                     String filename = sourcepath + "/" + jarFile.getName();
-                    String path = jarFile.getCanonicalPath().replace(jarFile.getName(), filename);
+                    String path = jarCanonicalPath.replace(jarFile.getName(), filename);
                     if (new File(path).exists())
                     {
                         sb.append(" sourcepath=\"");
@@ -296,7 +301,7 @@ public class SweetenedClasspathTask extends MatchingTask
     /**
      * Combines all the classpath elements into
      * a List of Strings. Only retreives jars of
-     * a specific scope.
+     * a specific scope and ALL.
      */
     protected List<SweetenedFileResource> getJars(SweetenedScope scope) {
         List<SweetenedFileResource> jars = new ArrayList<SweetenedFileResource>();
