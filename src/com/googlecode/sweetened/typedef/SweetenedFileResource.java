@@ -11,7 +11,8 @@ import org.apache.tools.ant.types.resources.FileResource;
 public class SweetenedFileResource extends FileResource {
 
     private String src = null;
-    private String scope = null;
+    /** The default scope is the all scope. */
+    private String scope = SweetenedScope.ALL.getScope();
     private String nameInner = null;
 
     /** */
