@@ -6,7 +6,7 @@
     <property name="lib.dir" value="lib"/>
     <property name="target.dir" value="target"/>
     <property name="project.name" value="${ant.project.name}"/>
-    <property name="alexandria.dir" value="../alexandria"/>
+    <property name="alexandria.dir" value="../../alexandria"/>
     <!--
         Inside of the alexandria jar.properties file, it looks like this:
 
@@ -15,30 +15,35 @@
     <property file="${alexandria.dir}/jar.properties"/>
     <typedef resource="com/googlecode/sweetened/sweetened.xml" classpath="${target.dir}/sweetened.jar" />
 
-    <spath id="filelist.classpath" scope="debug">
+    <spath id="filelist.classpath" scope="runtime">
         <sfilelist dir="${lib.dir}">
             <sfile name="${ant.jar}" scope="compile" />
+            <sfile name="${ant-googlecode.jar}" scope="runtime" />
             <sfile name="svntask.jar" scope="runtime" />
         </sfilelist>
         <sfilelist dir="${target.dir}">
-            <sfile name="sweetened.jar" src="src" scope="runtime" />
+            <sfile name="sweetened.jar" src="src" scope="compile" />
         </sfilelist>
         <sfilelist dir="${alexandria.dir}">
-            <sfile name="${junit.jar}" scope="compile" />
+            <sfile name="${junit.jar}" scope="unit" />
         </sfilelist>
     </spath>
 
-    <spath id="javac.classpath" refid="filelist.classpath" scope="compile" />
+    <spath id="javac.classpath" scope="compile" parent="filelist.classpath" />
+    <spath id="unit.classpath" scope="unit" parent="javac.classpath" />
 
-    <echo>
-        ${toString:javac.classpath}
-    </echo>
+    <target name="echo">
+        <echo>
+            javac.classpath: ${toString:javac.classpath}
+            unit.classpath: ${toString:unit.classpath}
+            filelist.classpath: ${toString:filelist.classpath}
+        </echo>
+    </target>
 
-	<target name=".eclipse">
-	    <!--
-		<sweetenedClasspath file="${target.dir}/varClasspath"
-		    var="ALEXANDRIA_HOME" varpath="${alexandria.dir}" sourcepath="src"
-		    property="sweetenedVar" debug="true">
+    <target name=".eclipse">
+        <sweetenedClasspath file="${target.dir}/varClasspath"
+            var="ALEXANDRIA_HOME" varpath="${alexandria.dir}" sourcepath="src"
+            property="sweetenedVar" debug="true">
             <sweetenedBits refid="filelist.classpath" />
             <data>
                 <classpath>
@@ -52,12 +57,12 @@
                     <classpathentry kind="output" path="build/classes"/>
                 </classpath>
             </data>
-	    </sweetenedClasspath>
+        </sweetenedClasspath>
         <sweetenedClasspath file="${target.dir}/libClasspath" sourcepath="src" debug="true">
             <sweetenedBits refid="filelist.classpath" />
             <data>
                 <classpath>
-                	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
+                    <classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
                     <classpathentry kind="lib" path="bin/log4j/dev"/>
                     <classpathentry kind="lib" path="etc"/>
                     ${sweetened}
@@ -87,7 +92,6 @@
                 </natures>
             </projectDescription>
         </echoxml>
-        -->
-	</target>
+    </target>
 
 </project>
