@@ -14,11 +14,11 @@
     <property name="classes.dir" location="${build.dir}/classes" />
     <property name="build.javadoc.dir" location="${build.dir}/javadoc" />
 
-	<property name="javadoc.dir" location="javadoc" />
+    <property name="javadoc.dir" location="javadoc" />
     <property name="lib.dir" value="lib"/>
     <property name="src.dir" location="src" />
 
-	<property name="build.debug" value="on" />
+    <property name="build.debug" value="on" />
     <property name="build.deprecation" value="on" />
     <property name="ant.build.javac.target" value="1.5" />
     <property name="ant.build.javac.source" value="1.5" />
@@ -63,20 +63,21 @@
 
         <property name="build.dist.dir" location="${build.dir}/${ant.project.name}-${version}"/>
         <property name="build.dist.zip" location="${build.dir}/${ant.project.name}-${version}.zip"/>
-	</target>
+    </target>
 
     <target name=".eclipse" depends="jar">
         <sweetenedClasspath file=".classpath">
             <sweetenedBits refid="sweetened.classpath" />
-            <![CDATA[<?xml version="1.0" encoding="UTF-8"?>
-	    	<classpath>
-	    	    <classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
-                ${sweetened}
-	    	    <classpathentry kind="src" path="src"/>
-	    	    <classpathentry kind="output" path="target/classes"/>
-	    	</classpath>]]>
+            <data>
+                <classpath>
+                    <classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
+                    ${sweetened}
+                    <classpathentry kind="src" path="src"/>
+                    <classpathentry kind="output" path="target/classes"/>
+                </classpath>
+            </data>
         </sweetenedClasspath>
-        <echo file=".project"><![CDATA[<?xml version="1.0" encoding="UTF-8"?>
+        <echoxml file=".project">
             <projectDescription>
                 <name>${project.name}</name>
                 <comment></comment>
@@ -92,9 +93,9 @@
                 <natures>
                     <nature>org.eclipse.jdt.core.javanature</nature>
                 </natures>
-            </projectDescription>]]>
-        </echo>
-	</target>
+            </projectDescription>
+        </echoxml>
+    </target>
 
     <target name="classes" depends="init">
         <mkdir dir="${build.dir}/classes"/>
@@ -153,7 +154,7 @@
             <bottom><![CDATA[<i>Copyright &#169; ${YEAR} Jon Stevens. All Rights Reserved. Build version: ${build.version}</i>]]></bottom>
         </javadoc>
 
-    	<sync todir="${javadoc.dir}" includeEmptyDirs="true">
+        <sync todir="${javadoc.dir}" includeEmptyDirs="true">
             <fileset dir="${build.javadoc.dir}" />
             <preserveintarget>
                 <include name="**/.svn/**"/>
