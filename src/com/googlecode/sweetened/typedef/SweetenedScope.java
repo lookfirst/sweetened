@@ -5,7 +5,7 @@ package com.googlecode.sweetened.typedef;
  * only three options: runtime, compile and all.
  */
 public enum SweetenedScope {
-    RUNTIME("runtime"), COMPILE("compile"), ALL("all");
+    RUNTIME("runtime"), COMPILE("compile"), UNIT("unit"), ALL("all");
     private String scope;
 
     private SweetenedScope(String scope) {
