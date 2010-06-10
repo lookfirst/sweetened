@@ -20,6 +20,7 @@ package com.googlecode.sweetened.typedef;
 
 import java.io.File;
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 
 import org.apache.tools.ant.types.FileList;
@@ -36,10 +37,24 @@ public class SweetenedFileList extends FileList {
 
     List<SweetenedFileResource> sfrs = new ArrayList<SweetenedFileResource>();
 
+    public void removeResource(SweetenedFileResource sfr) {
+        @SuppressWarnings("unchecked")
+        Iterator itr = this.iterator();
+        while (itr.hasNext()) {
+            if (itr.equals(sfr)) {
+                itr.remove();
+            }
+        }
+        sfrs.remove(sfr);
+    }
+
     /** */
     public void addConfigured(SweetenedFileResource sfr) {
+        System.out.println("calling addConfigured in sfl");
         File baseDir = this.getDir(this.getProject());
         sfr.setBaseDir(baseDir);
+
+        // catch-22. can't call sfr.getName() until the File is set
         sfr.setFile(new File(baseDir, sfr.getNameInner()));
 
         // Need to also 'convert' to FileList by configuring it

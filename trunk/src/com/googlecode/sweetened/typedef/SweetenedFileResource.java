@@ -12,12 +12,12 @@ public class SweetenedFileResource extends FileResource {
 
     private String src = null;
     /** The default scope is the all scope. */
-    private String scope = SweetenedScope.ALL.getScope();
-    private String nameInner = null;
+    private SweetenedScope scope = SweetenedScope.ALL;
+    private String nameStr = null;
 
     /** */
     public void setName(String name) {
-        this.nameInner = name;
+        this.nameStr = name;
         // not accurate. will be made accurate later in SweetenedFileList.
         // done here because FileResource.getName() depends on having file not be null.
         this.setFile(new File(name));
@@ -25,7 +25,7 @@ public class SweetenedFileResource extends FileResource {
 
     /** */
     public String getNameInner() {
-        return nameInner;
+        return nameStr;
     }
 
     /** */
@@ -40,11 +40,11 @@ public class SweetenedFileResource extends FileResource {
 
     /** */
     public void setScope(String scope) {
-        this.scope = scope;
+        this.scope = SweetenedScope.safeValueOf(scope);
     }
 
     /** */
-    public String getScope() {
+    public SweetenedScope getScope() {
         return scope;
     }
 }
