@@ -4,7 +4,6 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
-import org.apache.tools.ant.types.Resource;
 import org.apache.tools.ant.types.resources.Union;
 
 
@@ -13,8 +12,9 @@ import org.apache.tools.ant.types.resources.Union;
  */
 public class SweetenedPath extends Union {
 
-    private List<SweetenedFileList> rc = new ArrayList<SweetenedFileList>();
+    private List<SweetenedFileList> fileListList = new ArrayList<SweetenedFileList>();
     private SweetenedScope scope = null;
+    private String parent = null;
 
     /** */
     public void addConfigured(SweetenedFileList sfl) {
@@ -23,51 +23,100 @@ public class SweetenedPath extends Union {
         add(sfl);
 
         // our internal cache
-        rc.add(sfl);
+        fileListList.add(sfl);
     }
 
     /** */
     public List<SweetenedFileList> getFileList() {
-        return rc;
+        return fileListList;
     }
 
     /** */
     public void setScope(String scope) {
-        System.out.println("path: " + this.getRefid() + " scope: " + scope);
-        this.scope = SweetenedScope.safeValueOf(scope);
+//        if (this.getRefid() != null) {
+//            // FIXME: this should walk the entire reference tree
+//            Object obj = this.getCheckedRef();
+//            if (obj instanceof SweetenedPath) {
+//                ((SweetenedPath)obj).setScope(scope);
+//            }
+//        }
+        this.scope = SweetenedScope.valueOf(scope.toUpperCase());
     }
 
+    /**
+     * The scope for this path.
+     */
     public SweetenedScope getScope() {
         return scope;
     }
 
-
+    /**
+     * This method applies the current path scope to the objects it returns.
+     * Any sfile's with the scope of ALL are included.
+     */
     @Override
+    @SuppressWarnings("unchecked")
     protected Collection getCollection() {
-        for (SweetenedFileList sfl : getFileList()) {
-            // Remove all resources not in the correct scope
-            List<SweetenedFileResource> fileResources = sfl.getFileResources();
-            for (SweetenedFileResource sfr : fileResources) {
-                System.out.println("sfr.getScope:" + sfr.getScope());
-                System.out.println("path.getScope:" + this.scope);
-                if (this.scope != null && (sfr.getScope() != SweetenedScope.ALL || sfr.getScope() != this.scope)) {
-                    System.out.println("removing resource: " + sfr.getName());
-                    sfl.removeResource(sfr);
+        List<SweetenedFileResource> resources = null;
+        if (this.parent != null) {
+            Object reference = this.getProject().getReference(this.parent);
+            if (reference instanceof SweetenedPath) {
+                SweetenedPath sp = (SweetenedPath)reference;
+
+                // Cache the parents scope and then
+                // set the parents scope to the current scope
+                SweetenedScope tmpScope = null;
+                if (this.scope != null) {
+                    tmpScope = sp.getScope();
+                    sp.setScope(this.scope.name());
                 }
+
+                // Recursively call the parent.
+                Collection result = sp.getCollection();
+
+                // Return the parents scope back to what it was.
+                if (tmpScope != null)
+                    sp.setScope(tmpScope.name());
+
+                return result;
+            }
+        } else {
+            resources = this.getSweetenedFileResources();
+        }
+
+        Collection<SweetenedFileResource> sfrList = new ArrayList<SweetenedFileResource>();
+        for (SweetenedFileResource sfr : resources) {
+            if (scope != null && (sfr.getScope() == SweetenedScope.ALL || sfr.getScope() == scope)) {
+                sfrList.add(sfr);
             }
         }
-        return super.getCollection();
+        return sfrList;
     }
-    @Override
-    public String[] list() {
-        String[] theList = super.list();
-        System.out.println("here: " + theList);
-        return super.list();
+
+    /**
+     * Gets the list of SweetenedFileResource objects that are contained within this path.
+     */
+    public List<SweetenedFileResource> getSweetenedFileResources() {
+        List<SweetenedFileResource> sfrList = new ArrayList<SweetenedFileResource>();
+        for (SweetenedFileList sfl : this.getFileList()) {
+            List<SweetenedFileResource> fileResources = sfl.getFileResources();
+            sfrList.addAll(fileResources);
+        }
+
+        return sfrList;
     }
-    @Override
-    public Resource[] listResources() {
-        String[] theList = super.list();
-        System.out.println("here: " + theList);
-        return super.listResources();
+
+    /**
+     * The parent path that this path refers to.
+     */
+    public String getParent() {
+        return this.parent;
+    }
+
+    /**
+     * The parent path that this path refers to.
+     */
+    public void setParent(String parent) {
+        this.parent = parent;
     }
 }

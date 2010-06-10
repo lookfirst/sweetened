@@ -40,7 +40,7 @@ public class SweetenedFileResource extends FileResource {
 
     /** */
     public void setScope(String scope) {
-        this.scope = SweetenedScope.safeValueOf(scope);
+        this.scope = SweetenedScope.valueOf(scope.toUpperCase());
     }
 
     /** */

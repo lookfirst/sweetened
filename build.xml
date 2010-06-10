@@ -35,13 +35,7 @@
         </filelist>
     </path>
     -->
-    <typedef resource="com/googlecode/sweetened/sweetened.xml">
-        <classpath>
-            <fileset dir="${lib.dir}">
-                <include name="sweetened.jar"/>
-            </fileset>
-        </classpath>
-    </typedef>
+    <typedef resource="com/googlecode/sweetened/sweetened.xml" classpath="${lib.dir}/sweetened.jar" />
 
     <spath id="sweetened.classpath">
         <sfilelist dir="${lib.dir}">
