@@ -33,13 +33,6 @@ public class SweetenedPath extends Union {
 
     /** */
     public void setScope(String scope) {
-//        if (this.getRefid() != null) {
-//            // FIXME: this should walk the entire reference tree
-//            Object obj = this.getCheckedRef();
-//            if (obj instanceof SweetenedPath) {
-//                ((SweetenedPath)obj).setScope(scope);
-//            }
-//        }
         this.scope = SweetenedScope.valueOf(scope.toUpperCase());
     }
 
