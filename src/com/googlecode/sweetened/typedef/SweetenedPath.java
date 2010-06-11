@@ -52,24 +52,24 @@ public class SweetenedPath extends Union {
     protected Collection getCollection() {
         List<SweetenedFileResource> resources = null;
         if (this.parent != null) {
-            Object reference = this.getProject().getReference(this.parent);
-            if (reference instanceof SweetenedPath) {
-                SweetenedPath sp = (SweetenedPath)reference;
+            Object parentRefObj = this.getProject().getReference(this.parent);
+            if (parentRefObj instanceof SweetenedPath) {
+                SweetenedPath parentRef = (SweetenedPath)parentRefObj;
 
                 // Cache the parents scope and then
                 // set the parents scope to the current scope
                 SweetenedScope tmpScope = null;
                 if (this.scope != null) {
-                    tmpScope = sp.getScope();
-                    sp.setScope(this.scope.name());
+                    tmpScope = parentRef.getScope();
+                    parentRef.setScope(this.scope.name());
                 }
 
                 // Recursively call the parent.
-                Collection result = sp.getCollection();
+                Collection result = parentRef.getCollection();
 
                 // Return the parents scope back to what it was.
                 if (tmpScope != null)
-                    sp.setScope(tmpScope.name());
+                    parentRef.setScope(tmpScope.name());
 
                 return result;
             }
@@ -78,12 +78,29 @@ public class SweetenedPath extends Union {
         }
 
         Collection<SweetenedFileResource> sfrList = new ArrayList<SweetenedFileResource>();
+
+        // Filter out the items from the scopes we care about.
         for (SweetenedFileResource sfr : resources) {
-            if (scope != null && (sfr.getScope() == SweetenedScope.ALL || sfr.getScope() == scope)) {
+            if (isInScope(sfr.getScope())) {
                 sfrList.add(sfr);
             }
         }
+
         return sfrList;
+    }
+
+    /**
+     * Override this method to change the behavior for dealing with scope.
+     * all > unit|runtime > compile
+     */
+    protected boolean isInScope(SweetenedScope scope) {
+        if (scope == null) return false;
+        if (scope == SweetenedScope.ALL || scope == this.getScope()) {
+            return true;
+        } else if ((this.getScope() == SweetenedScope.UNIT || this.getScope() == SweetenedScope.RUNTIME) && scope == SweetenedScope.COMPILE) {
+            return true;
+        }
+        return false;
     }
 
     /**
