@@ -95,9 +95,11 @@ public class SweetenedPath extends Union {
      */
     protected boolean isInScope(SweetenedScope scope) {
         if (scope == null) return false;
-        if (scope == SweetenedScope.ALL || scope == this.getScope()) {
+        // If either the passed in scope or this path's scope is all or equal to each other
+        if (scope == SweetenedScope.ALL || (this.getScope() != null && this.getScope() == SweetenedScope.ALL) || scope == this.getScope()) {
             return true;
-        } else if ((this.getScope() == SweetenedScope.UNIT || this.getScope() == SweetenedScope.RUNTIME) && scope == SweetenedScope.COMPILE) {
+        // If this path's scope is either unit or runtime and the passed in scope is compile, then we are in scope.
+        } else if ((this.getScope() != null && (this.getScope() == SweetenedScope.UNIT || this.getScope() == SweetenedScope.RUNTIME)) && scope == SweetenedScope.COMPILE) {
             return true;
         }
         return false;
