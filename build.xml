@@ -37,7 +37,7 @@
     -->
     <typedef resource="com/googlecode/sweetened/sweetened.xml" classpath="${lib.dir}/sweetened.jar" />
 
-    <spath id="sweetened.classpath">
+    <spath id="sweetened.classpath" scope="all">
         <sfilelist dir="${lib.dir}">
             <sfile name="${ant.jar}" scope="compile" src="../apache-ant-src-1.8.1/src/main" />
         </sfilelist>
@@ -105,8 +105,7 @@
                 debug="${build.debug}"
                 deprecation="${build.deprecation}"
             >
-
-            <classpath refid="sweetened.classpath" />
+            <classpath path="${toString:sweetened.classpath}"/>
         </javac>
 
         <sync todir="${build.dir}/classes">
