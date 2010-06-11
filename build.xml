@@ -37,11 +37,13 @@
     -->
     <typedef resource="com/googlecode/sweetened/sweetened.xml" classpath="${lib.dir}/sweetened.jar" />
 
-    <spath id="sweetened.classpath" scope="all">
+    <spath id="sweetened.classpath">
         <sfilelist dir="${lib.dir}">
             <sfile name="${ant.jar}" scope="compile" src="${ant.src}" />
         </sfilelist>
     </spath>
+    <spath id="javadoc.classpath" scope="all" parent="sweetened.classpath" />
+    <spath id="javac.classpath" scope="compile" parent="sweetened.classpath" />
 
     <target name="init">
         <typedef resource="com/googlecode/svntask/svntask.xml">
@@ -105,7 +107,7 @@
                 debug="${build.debug}"
                 deprecation="${build.deprecation}"
             >
-            <classpath path="${toString:sweetened.classpath}"/>
+            <classpath path="${toString:javac.classpath}"/>
         </javac>
 
         <sync todir="${build.dir}/classes">
@@ -140,9 +142,9 @@
         <javadoc
             destdir="${build.javadoc.dir}"
             packagenames="*"
-            classpathref="sweetened.classpath"
             author="true"
             version="true"
+            classpath="${toString:javadoc.classpath}"
             Windowtitle="Sweetened Javadoc"
         >
             <fileset dir="${src.dir}">
