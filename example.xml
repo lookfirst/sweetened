@@ -46,15 +46,14 @@
 
     <target name=".eclipse">
         <sweetenedClasspath file="${target.dir}/varClasspath"
-            var="ALEXANDRIA_HOME" varpath="${alexandria.dir}" sourcepath="src"
-            property="sweetenedVar" debug="true">
+            var="ALEXANDRIA_HOME" varpath="${alexandria.dir}" sourcepath="src" debug="true">
             <sweetenedBits refid="filelist.classpath" />
             <data>
                 <classpath>
                     <classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
+                    <sweetenedEntries />
                     <classpathentry kind="lib" path="bin/log4j/dev"/>
                     <classpathentry kind="lib" path="etc"/>
-                    ${sweetenedVar}
                     <classpathentry kind="lib" path="resources/publisher"/>
                     <classpathentry kind="src" path="src"/>
                     <classpathentry kind="src" path="test/java"/>
@@ -69,7 +68,7 @@
                     <classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
                     <classpathentry kind="lib" path="bin/log4j/dev"/>
                     <classpathentry kind="lib" path="etc"/>
-                    ${sweetened}
+                    <sweetenedEntries />
                     <classpathentry kind="lib" path="resources/publisher"/>
                     <classpathentry kind="src" path="src"/>
                     <classpathentry kind="src" path="test/java"/>

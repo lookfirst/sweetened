@@ -29,9 +29,9 @@ public class SweetenedClasspathTask extends MatchingTask
     private String sourcepath;
     private String varpath;
     private List<SweetenedPath> classpaths = new ArrayList<SweetenedPath>();
-    private String property = "sweetened";
     private boolean autoGen = true;
     private boolean debug = false;
+    public static String SWEETENEDENTRIES_ELEMENT = "sweetenedEntries";
 
     /**
      * Make sure everything is setup correctly.
@@ -42,98 +42,85 @@ public class SweetenedClasspathTask extends MatchingTask
         {
             throw new BuildException("Missing classpath element within a sweetened element");
         }
-        if (getProperty() == null)
-        {
-            throw new BuildException("Missing the 'property' attribute within the sweetened element definition.");
-        }
 
-        if (getVar() != null)
+        if (getVar() != null && getVarpath() == null)
         {
-            if (getVarpath() == null)
-            {
-                throw new BuildException("Attibute 'varpath' cannot be null when the 'var' attribute is declared.");
-            }
-
-            this.getProject().setProperty(this.getProperty(), this.getFormattedClasspathEntries(getVarClasspathEntries()));
-        }
-        else
-        {
-            this.getProject().setProperty(this.getProperty(), this.getFormattedClasspathEntries(getLibClasspathEntries()));
+            throw new BuildException("Attibute 'varpath' cannot be null when the 'var' attribute is declared.");
         }
     }
 
     /**
      * The main deal.
      */
-	@Override
-	public void execute() throws BuildException
-	{
-		try
-		{
-		    this.validate();
+    @Override
+    public void execute() throws BuildException
+    {
+        try
+        {
+            this.validate();
+            String data = null;
+            if (getVar() != null)
+                data = this.getFormattedClasspathEntries(getVarClasspathEntries());
+            else
+                data = this.getFormattedClasspathEntries(getLibClasspathEntries());
 
-		    this.getData().execute(new File(this.getFile()), this.isAutoGen(), this.isDebug());
-		}
-		catch (Exception e)
-		{
-			throw new BuildException(e);
-		}
-	}
+            this.getData().execute(data, new File(this.getFile()), this.isAutoGen(), this.isDebug());
+        }
+        catch (Exception e)
+        {
+            throw new BuildException(e);
+        }
+    }
 
-	/**
-	 * Deals with formatting the actual elements so they show up nicely in the file.
-	 */
-	protected String getFormattedClasspathEntries(List<ClasspathEntryElement> ceeList) {
-	    StringBuilder sb = new StringBuilder();
-	    boolean firstTime = false;
-	    for (ClasspathEntryElement cee : ceeList) {
-	        if (!firstTime) {
-	            sb.append("\n");
-	            firstTime = true;
-	        }
-	        sb.append("  ");
-	        sb.append(cee.toString());
-	        sb.append("\n");
-	    }
-	    return sb.toString();
-	}
+    /**
+    * Deals with formatting the actual elements so they show up nicely in the file.
+    */
+    protected String getFormattedClasspathEntries(List<ClasspathEntryElement> ceeList) {
+        StringBuilder sb = new StringBuilder();
+        for (ClasspathEntryElement cee : ceeList) {
+            sb.append("  ");
+            sb.append(cee.toString());
+            sb.append("\n");
+        }
+        return sb.toString();
+    }
 
-	/**
+    /**
      * Override this method if you would like to format things
      * differently.
      * @throws IOException if there is a problem with getCanonicalPath to a file
      */
-	protected List<ClasspathEntryElement> getVarClasspathEntries()
-	{
-	    List<ClasspathEntryElement> ceeList = new ArrayList<ClasspathEntryElement>();
-	    try
-	    {
-	        // Get the absolute path to the Eclipse variable.
+    protected List<ClasspathEntryElement> getVarClasspathEntries()
+    {
+        List<ClasspathEntryElement> ceeList = new ArrayList<ClasspathEntryElement>();
+        try
+        {
+            // Get the absolute path to the Eclipse variable.
             File varpath = new File(this.getVarpath());
             String varCanonicalPath = varpath.getCanonicalPath();
-    	    for (SweetenedFileResource jar : this.getJars(SweetenedScope.COMPILE))
-    	    {
-    	        File jarFile = jar.getFile();
-    	        if (jar.getFile().exists())
-    	        {
-        	        // the jar's src= attribute overrides task sourcepath
-    	            String outputSourcePath = null;
-        	        if (jar.getSrc() != null)
-        	        {
-        	            File filePath = null;
-        	            if (jar.getSrc().startsWith("/"))
-        	                filePath = new File(jar.getSrc());
-        	            else
-        	                filePath = new File(this.getProject().getBaseDir(), jar.getSrc());
+            for (SweetenedFileResource jar : this.getJars(SweetenedScope.COMPILE))
+            {
+                File jarFile = jar.getFile();
+                if (jar.getFile().exists())
+                {
+                    // the jar's src= attribute overrides task sourcepath
+                    String outputSourcePath = null;
+                    if (jar.getSrc() != null)
+                    {
+                        File filePath = null;
+                        if (jar.getSrc().startsWith("/"))
+                            filePath = new File(jar.getSrc());
+                        else
+                            filePath = new File(this.getProject().getBaseDir(), jar.getSrc());
 
-        	            if (filePath.exists())
-        	            {
-        	                // If the sourcepath can be replaced with a variable reference, then do so.
+                        if (filePath.exists())
+                        {
+                            // If the sourcepath can be replaced with a variable reference, then do so.
                             outputSourcePath = filePath.getCanonicalPath().replace(varCanonicalPath, getVar());
-        	            }
-        	        }
-        	        else if (sourcepath != null)
-        	        {
+                        }
+                    }
+                    else if (sourcepath != null)
+                    {
                         String filename = sourcepath + "/" + jarFile.getName();
                         // Add in the sourcepath before the filename
                         // thirdparty/junit.jar -> thirdparty/src/junit.jar
@@ -144,29 +131,29 @@ public class SweetenedClasspathTask extends MatchingTask
                             // /Users/jon/alexandria/thirdparty/src/junit.jar -> /ALEXANDRIA_HOME/thirdparty/src/junit.jar
                             outputSourcePath = path.replace(varCanonicalPath, getVar());
                         }
-        	        }
+                    }
                     // /Users/jon/alexandria/thirdparty/junit.jar -> ALEXANDRIA_HOME/thirdparty/junit.jar
                     String path = jarFile.getCanonicalPath().replace(varCanonicalPath, getVar());
 
                     ClasspathEntryElement cee = new ClasspathEntryElement("var", path, outputSourcePath);
                     ceeList.add(cee);
-    	        }
-    	    }
-	    }
-	    catch (IOException ex)
-	    {
-	        // Really shouldn't happen
-	        throw new BuildException(ex);
-	    }
-	    return ceeList;
-	}
+                }
+            }
+        }
+        catch (IOException ex)
+        {
+            // Really shouldn't happen
+            throw new BuildException(ex);
+        }
+        return ceeList;
+    }
 
     /**
      * Override this method if you would like to format things
      * differently.
      */
-	protected List<ClasspathEntryElement> getLibClasspathEntries()
-	{
+    protected List<ClasspathEntryElement> getLibClasspathEntries()
+    {
         List<ClasspathEntryElement> ceeList = new ArrayList<ClasspathEntryElement>();
         try
         {
@@ -209,7 +196,7 @@ public class SweetenedClasspathTask extends MatchingTask
             throw new BuildException(ex);
         }
         return ceeList;
-	}
+    }
 
     /**
      * The output file location.
@@ -258,7 +245,7 @@ public class SweetenedClasspathTask extends MatchingTask
     }
 
     /**
-     * The inner text within the sweetened element.
+     * The inner xml within the sweetenedClasspath element.
      */
     public void addConfiguredData(SweetenedXML xml) {
         this.xml = xml;
@@ -266,14 +253,14 @@ public class SweetenedClasspathTask extends MatchingTask
 
 
     /**
-     * The inner text within the sweetened element.
+     * The inner xml within the sweetenedClasspath element.
      */
     public SweetenedXML getData() {
         return xml;
     }
 
     /**
-     * The list of ant &lt;classpath&gt; elements.
+     * The list of ant &lt;sweetenedBits&gt; elements.
      */
     public void addConfiguredSweetenedBits(SweetenedPath classpath) {
         // Lame... but seems to work. At this point, we just want to
@@ -283,14 +270,14 @@ public class SweetenedClasspathTask extends MatchingTask
     }
 
     /**
-     * The list of ant &lt;classpath&gt; elements.
+     * The list of ant &lt;sweetenedBits&gt; elements.
      */
     public List<SweetenedPath> getSweetenedBits() {
         return classpaths;
     }
 
     /**
-     * Combines all the classpath elements into
+     * Combines all the sweetenedBits elements into
      * a List of Strings. Only retreives jars of
      * a specific scope and ALL.
      */
@@ -331,22 +318,6 @@ public class SweetenedClasspathTask extends MatchingTask
      */
     public String getSourcepath() {
         return sourcepath;
-    }
-
-    /**
-     * Used for overriding the substitution property
-     * in the CDATA section.
-     */
-    public void setProperty(String property) {
-        this.property = property;
-    }
-
-    /**
-     * Used for overriding the substitution property
-     * in the CDATA section.
-     */
-    public String getProperty() {
-        return property;
     }
 
     /**
