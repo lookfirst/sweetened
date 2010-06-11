@@ -30,13 +30,17 @@
     </spath>
 
     <spath id="javac.classpath" scope="compile" parent="filelist.classpath" />
+    <!-- Inherit only what is in the javac.classpath -->
     <spath id="unit.classpath" scope="unit" parent="javac.classpath" />
 
     <target name="echo">
         <echo>
             javac.classpath: ${toString:javac.classpath}
+                (ant, sweetened)
             unit.classpath: ${toString:unit.classpath}
+                (ant, sweetened, junit)
             filelist.classpath: ${toString:filelist.classpath}
+                (ant, ant-googlecode, svntask, sweetened)
         </echo>
     </target>
 
