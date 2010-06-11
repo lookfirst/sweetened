@@ -23,7 +23,7 @@ public class SweetenedPath extends Union {
         add(sfl);
 
         // our internal cache
-        fileListList.add(sfl);
+        getFileList().add(sfl);
     }
 
     /** */
@@ -51,17 +51,17 @@ public class SweetenedPath extends Union {
     @SuppressWarnings("unchecked")
     protected Collection getCollection() {
         List<SweetenedFileResource> resources = null;
-        if (this.parent != null) {
-            Object parentRefObj = this.getProject().getReference(this.parent);
+        if (this.getParent() != null) {
+            Object parentRefObj = this.getProject().getReference(this.getParent());
             if (parentRefObj instanceof SweetenedPath) {
                 SweetenedPath parentRef = (SweetenedPath)parentRefObj;
 
                 // Cache the parents scope and then
                 // set the parents scope to the current scope
                 SweetenedScope tmpScope = null;
-                if (this.scope != null) {
+                if (this.getScope() != null) {
                     tmpScope = parentRef.getScope();
-                    parentRef.setScope(this.scope.name());
+                    parentRef.setScope(this.getScope().name());
                 }
 
                 // Recursively call the parent.
