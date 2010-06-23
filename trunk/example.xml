@@ -13,7 +13,8 @@
         junit.jar=thirdparty/junit-2.8.2.jar
     -->
     <property file="${serapeum.dir}/jar.properties"/>
-    <typedef resource="com/googlecode/sweetened/sweetened.xml" classpath="${target.dir}/sweetened.jar" />
+    <typedef resource="com/googlecode/sweetened/sweetened.xml"
+        classpath="${target.dir}/sweetened.jar:${lib.dir}/svnkit.jar" />
 
     <!--
         scope is defined as: all > runtime|unit > compile
@@ -45,6 +46,13 @@
                 (ant, sweetened, junit)
             filelist.classpath: ${toString:filelist.classpath}
                 (ant, ant-googlecode, svntask, sweetened)
+        </echo>
+    </target>
+
+    <target name="sVersion">
+        <sweetenedBranchVersion />
+        <echo>
+            ${sVersionBranch}-${sVersionRevision}
         </echo>
     </target>
 
