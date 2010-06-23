@@ -35,33 +35,24 @@
         </filelist>
     </path>
     -->
-    <typedef resource="com/googlecode/sweetened/sweetened.xml" classpath="${lib.dir}/sweetened.jar" />
+    <typedef resource="com/googlecode/sweetened/sweetened.xml"
+        classpath="${lib.dir}/sweetened.jar:${lib.dir}/${svnkit.jar}" />
+    <sweetenedVersion />
 
     <spath id="sweetened.classpath">
         <sfilelist dir="${lib.dir}">
             <sfile name="${ant.jar}" scope="compile" src="${ant.src}" />
+            <sfile name="${svnkit.jar}" scope="compile" />
         </sfilelist>
     </spath>
     <spath id="javadoc.classpath" scope="all" parent="sweetened.classpath" />
     <spath id="javac.classpath" scope="compile" parent="sweetened.classpath" />
 
     <target name="init">
-        <typedef resource="com/googlecode/svntask/svntask.xml">
-            <classpath>
-                <fileset dir="${lib.dir}">
-                    <include name="svnkit.jar"/>
-                    <include name="svntask.jar"/>
-                </fileset>
-            </classpath>
-        </typedef>
-
-        <svn><info path="${basedir}" revisionProperty="revisionVersion" /></svn>
-
         <taskdef classname="net.bluecow.googlecode.ant.GoogleCodeUploadTask" classpath="${lib.dir}/ant-googlecode-0.0.2.jar" name="gcupload"/>
 
-        <!--  A hack because svnant does not respect Ant's properties can't be overwritten rule. -->
-        <property name="version" value="${revisionVersion}" />
-        <property name="build.version" value="${revisionVersion}" />
+        <property name="version" value="${sVersion}" />
+        <property name="build.version" value="${sVersion}" />
 
         <property name="build.dist.dir" location="${build.dir}/${ant.project.name}-${version}"/>
         <property name="build.dist.zip" location="${build.dir}/${ant.project.name}-${version}.zip"/>
@@ -124,8 +115,8 @@
         <jar jarfile="${build.dir}/sweetened.jar" basedir="${build.dir}/classes"
               includes="**/*.class,**/*.xml">
             <manifest>
-                <attribute name="Specification-Version" value="${version}" />
-                <attribute name="Implementation-Version" value="r${svn.revision}" />
+                <attribute name="Specification-Version" value="${sVersion}" />
+                <attribute name="Implementation-Version" value="${sVersion}" />
                 <attribute name="Main-Class" value="com.googlecode.sweetened.Version" />
             </manifest>
         </jar>
@@ -152,7 +143,7 @@
                 <exclude name="**/*.xml" />
             </fileset>
             <doctitle><![CDATA[<h1>Sweetened</h1>]]></doctitle>
-            <bottom><![CDATA[<i>Copyright &#169; ${YEAR} Jon Stevens. All Rights Reserved. Build version: ${build.version}</i>]]></bottom>
+            <bottom><![CDATA[<i>Copyright &#169; ${YEAR} Jon Stevens. All Rights Reserved. Build version: ${sVersion}</i>]]></bottom>
         </javadoc>
 
         <sync todir="${javadoc.dir}" includeEmptyDirs="true">

@@ -31,6 +31,7 @@ public class SweetenedVersionTask extends Task
 {
     private String sVersionPath = "sVersionPath";
     private String sVersionRevision = "sVersionRevision";
+    private String sVersionVersion = "sVersion";
 
     /** */
     private SVNClientManager manager = null;
@@ -61,6 +62,8 @@ public class SweetenedVersionTask extends Task
 
             String revision = new Long(info.getRevision().getNumber()).toString();
             this.getProject().setProperty(sVersionRevision, revision);
+
+            this.getProject().setProperty(sVersionVersion, branch + "-" + revision);
         }
         catch (Exception e)
         {
@@ -116,5 +119,15 @@ public class SweetenedVersionTask extends Task
     /** */
     public void setRevisionProperty(String sVersionRevision) {
         this.sVersionRevision = sVersionRevision;
+    }
+
+    /** */
+    public void setVersionProperty(String sVersionVersion) {
+        this.sVersionVersion = sVersionVersion;
+    }
+
+    /** */
+    public String getVersionProperty() {
+        return sVersionVersion;
     }
 }
