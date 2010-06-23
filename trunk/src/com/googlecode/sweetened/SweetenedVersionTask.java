@@ -19,15 +19,17 @@ import org.tmatesoft.svn.core.wc.SVNWCClient;
  * http://svn/trunk/project
  * http://svn/branches/v10/project
  *
- * The output would be either trunk-23423 or v10-23432
+ * The output would be something like:
+ *  trunk/project-23423 or branches/v10/project-23432 or
+ *  trunk-23534
  *
  * See the example.xml for an example of the usage.
  *
  * @author jon stevens
  */
-public class SweetenedBranchVersionTask extends Task
+public class SweetenedVersionTask extends Task
 {
-    private String sVersionBranch = "sVersionBranch";
+    private String sVersionPath = "sVersionPath";
     private String sVersionRevision = "sVersionRevision";
 
     /** */
@@ -53,13 +55,9 @@ public class SweetenedBranchVersionTask extends Task
             String url = info.getURL().toDecodedString();
             String repositoryRootUrl = info.getRepositoryRootURL().toDecodedString();
 
+            // ie: trunk/sweetened or branches/v10/sweetened
             String branch = url.substring(repositoryRootUrl.length() + 1);
-            // /branches/v1.6/tracker
-            if (branch.startsWith("branches")) {
-                int start = branch.indexOf("/", 1);
-                branch = branch.substring(start + 1, branch.indexOf("/", start + 1));
-            }
-            this.getProject().setProperty(sVersionBranch, branch);
+            this.getProject().setProperty(sVersionPath, branch);
 
             String revision = new Long(info.getRevision().getNumber()).toString();
             this.getProject().setProperty(sVersionRevision, revision);
@@ -101,13 +99,13 @@ public class SweetenedBranchVersionTask extends Task
     }
 
     /** */
-    public String getBranchProperty() {
-        return sVersionBranch;
+    public String getPathProperty() {
+        return sVersionPath;
     }
 
     /** */
-    public void setBranchProperty(String sVersionBranch) {
-        this.sVersionBranch = sVersionBranch;
+    public void setPathProperty(String sVersionPath) {
+        this.sVersionPath = sVersionPath;
     }
 
     /** */

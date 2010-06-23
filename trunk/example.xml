@@ -50,9 +50,9 @@
     </target>
 
     <target name="sVersion">
-        <sweetenedBranchVersion />
+        <sweetenedVersion />
         <echo>
-            ${sVersionBranch}-${sVersionRevision}
+            ${sVersionPath}-${sVersionRevision}
         </echo>
     </target>
 
