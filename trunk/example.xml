@@ -20,7 +20,7 @@
         scope is defined as: all > runtime|unit > compile
         all is more inclusive than runtime or unit which is more inclusive than compile
     -->
-    <spath id="filelist.classpath" scope="runtime">
+    <sunion id="filelist.classpath" scope="runtime">
         <sfilelist dir="${lib.dir}">
             <sfile name="${ant.jar}" scope="compile" />
             <sfile name="${ant-googlecode.jar}" scope="runtime" />
@@ -32,11 +32,11 @@
         <sfilelist dir="${serapeum.dir}">
             <sfile name="${junit.jar}" scope="unit" />
         </sfilelist>
-    </spath>
+    </sunion>
 
-    <spath id="javac.classpath" scope="compile" parent="filelist.classpath" />
+    <sunion id="javac.classpath" scope="compile" parent="filelist.classpath" />
     <!-- Inherit only what is in the javac.classpath -->
-    <spath id="unit.classpath" scope="unit" parent="javac.classpath" />
+    <sunion id="unit.classpath" scope="unit" parent="javac.classpath" />
 
     <target name="echo">
         <echo>
@@ -109,4 +109,10 @@
         </echoxml>
     </target>
 
+    <target name="tar">
+        <delete file="${target.dir}/${project.name}.tgz" />
+        <tar destfile="${target.dir}/${project.name}.tgz" compression="gzip" longfile="gnu">
+            <union refid="unit.classpath"/>
+        </tar>
+    </target>
 </project>
