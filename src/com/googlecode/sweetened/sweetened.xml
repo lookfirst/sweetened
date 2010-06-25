@@ -6,4 +6,5 @@
   <typedef name="sfile" classname="com.googlecode.sweetened.typedef.SweetenedFileResource" />
   <typedef name="sfilelist" classname="com.googlecode.sweetened.typedef.SweetenedFileList" />
   <typedef name="spath" classname="com.googlecode.sweetened.typedef.SweetenedPath" />
+  <typedef name="sunion" classname="com.googlecode.sweetened.typedef.SweetenedPath" />
 </antlib>
