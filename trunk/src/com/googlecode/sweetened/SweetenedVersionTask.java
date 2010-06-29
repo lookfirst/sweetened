@@ -63,7 +63,7 @@ public class SweetenedVersionTask extends Task
             String revision = new Long(info.getRevision().getNumber()).toString();
             this.getProject().setProperty(sVersionRevision, revision);
 
-            this.getProject().setProperty(sVersionVersion, branch + "-" + revision);
+            this.getProject().setProperty(sVersionVersion, branch.replace("/", "-") + "-" + revision);
         }
         catch (Exception e)
         {
