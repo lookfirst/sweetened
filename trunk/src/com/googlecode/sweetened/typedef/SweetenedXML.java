@@ -206,6 +206,51 @@ public class SweetenedXML extends XMLFragment {
             }
         }
 
+        /**
+         * Had to override this method and add support for & # 10;
+         * Not a great solution... but this works...
+         * NOTE: this is fixed in ant > 1.8.1.
+         */
+        public String encode(String value) {
+            StringBuffer sb = new StringBuffer();
+            int len = value.length();
+            for (int i = 0; i < len; i++) {
+                char c = value.charAt(i);
+                switch (c) {
+                case '<':
+                    sb.append("&lt;");
+                    break;
+                case '>':
+                    sb.append("&gt;");
+                    break;
+                case '\'':
+                    sb.append("&apos;");
+                    break;
+                case '\"':
+                    sb.append("&quot;");
+                    break;
+                case '\n':
+                    sb.append("&#10;");
+                    break;
+                case '&':
+                    int nextSemi = value.indexOf(";", i);
+                    if (nextSemi < 0
+                        || !isReference(value.substring(i, nextSemi + 1))) {
+                        sb.append("&amp;");
+                    } else {
+                        sb.append('&');
+                    }
+                    break;
+                default:
+                    if (isLegalCharacter(c)) {
+                        sb.append(c);
+                    }
+                    break;
+                }
+            }
+            return sb.substring(0);
+        }
+
         public void setData(String data) {
             this.data = data;
         }

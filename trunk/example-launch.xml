@@ -1,0 +1,72 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<project basedir="." name="sweetened-example-launch" default=".launch">
+
+    <property file="jar.properties"/>
+    <property name="lib.dir" value="lib"/>
+    <property name="target.dir" value="target"/>
+    <property name="project.name" value="${ant.project.name}"/>
+    <property name="serapeum.dir" value="../serapeum"/>
+    <!--
+        Inside of the serapeum jar.properties file, it looks like this:
+
+        junit.jar=thirdparty/junit-2.8.2.jar
+    -->
+    <property file="${serapeum.dir}/jar.properties"/>
+    <typedef resource="com/googlecode/sweetened/sweetened.xml"
+        classpath="${target.dir}/sweetened.jar:${lib.dir}/svnkit.jar" />
+
+    <!--
+        scope is defined as: all > runtime|unit > compile
+        all is more inclusive than runtime or unit which is more inclusive than compile
+    -->
+    <spath id="filelist.classpath" scope="all">
+        <sfilelist dir="${lib.dir}">
+            <sfile name="${ant.jar}" scope="compile" />
+            <sfile name="${ant-googlecode.jar}" scope="all" />
+            <sfile name="svntask.jar" scope="all" />
+        </sfilelist>
+        <sfilelist dir="${target.dir}">
+            <sfile name="sweetened.jar" src="src" scope="all" />
+        </sfilelist>
+        <sfilelist dir="${serapeum.dir}">
+            <sfile name="${junit.jar}" scope="compile" />
+        </sfilelist>
+    </spath>
+    <spath id="many.classpath" scope="all" parent="filelist.classpath" />
+
+    <target name=".launch">
+        <sweetenedLaunch file="${target.dir}/JavaBridge.launch" debug="true">
+            <sweetenedBits refid="many.classpath" />
+            <data>
+                <launchConfiguration type="org.eclipse.jdt.launching.localJavaApplication">
+                <stringAttribute key="bad_container_name" value="/mscm/d"/>
+                <listAttribute key="org.eclipse.debug.core.MAPPED_RESOURCE_PATHS">
+                <listEntry value="/mscm/src/com/marin/bridge/php/JavaBridge.java"/>
+                </listAttribute>
+                <listAttribute key="org.eclipse.debug.core.MAPPED_RESOURCE_TYPES">
+                <listEntry value="1"/>
+                </listAttribute>
+                <booleanAttribute key="org.eclipse.debug.core.appendEnvironmentVariables" value="true"/>
+                <mapAttribute key="org.eclipse.debug.core.environmentVariables">
+                <mapEntry key="DYLD_LIBRARY_PATH" value="/Applications/jprofiler5/bin/macos"/>
+                </mapAttribute>
+                <stringAttribute key="org.eclipse.debug.core.source_locator_id" value="org.eclipse.jdt.launching.sourceLocator.JavaSourceLookupDirector"/>
+                <stringAttribute key="org.eclipse.debug.core.source_locator_memento" value="&lt;?xml version=&quot;1.0&quot; encoding=&quot;UTF-8&quot; standalone=&quot;no&quot;?&gt;&#10;&lt;sourceLookupDirector&gt;&#10;&lt;sourceContainers duplicates=&quot;false&quot;&gt;&#10;&lt;container memento=&quot;&amp;lt;?xml version=&amp;quot;1.0&amp;quot; encoding=&amp;quot;UTF-8&amp;quot; standalone=&amp;quot;no&amp;quot;?&amp;gt;&amp;#10;&amp;lt;javaProject name=&amp;quot;mscm&amp;quot;/&amp;gt;&amp;#10;&quot; typeId=&quot;org.eclipse.jdt.launching.sourceContainer.javaProject&quot;/&gt;&#10;&lt;/sourceContainers&gt;&#10;&lt;/sourceLookupDirector&gt;&#10;"/>
+                <stringAttribute key="org.eclipse.debug.ui.ATTR_CONSOLE_ENCODING" value="UTF-8"/>
+                <listAttribute key="org.eclipse.jdt.launching.CLASSPATH">
+                    <listEntry value="&lt;?xml version=&quot;1.0&quot; encoding=&quot;UTF-8&quot; standalone=&quot;no&quot;?&gt;&#10;&lt;runtimeClasspathEntry containerPath=&quot;org.eclipse.jdt.launching.JRE_CONTAINER&quot; javaProject=&quot;mscm&quot; path=&quot;1&quot; type=&quot;4&quot;/&gt;&#10;"/>
+                    <listEntry value="&lt;?xml version=&quot;1.0&quot; encoding=&quot;UTF-8&quot; standalone=&quot;no&quot;?&gt;&#10;&lt;runtimeClasspathEntry id=&quot;org.eclipse.jdt.launching.classpathentry.defaultClasspath&quot;&gt;&#10;&lt;memento exportedEntriesOnly=&quot;false&quot; project=&quot;mscm&quot;/&gt;&#10;&lt;/runtimeClasspathEntry&gt;&#10;"/>
+                    <sweetenedEntries />
+                </listAttribute>
+                <booleanAttribute key="org.eclipse.jdt.launching.DEFAULT_CLASSPATH" value="false"/>
+                <stringAttribute key="org.eclipse.jdt.launching.MAIN_TYPE" value="com.marin.bridge.php.JavaBridge"/>
+                <stringAttribute key="org.eclipse.jdt.launching.PROGRAM_ARGUMENTS" value="INET:9267"/>
+                <stringAttribute key="org.eclipse.jdt.launching.PROJECT_ATTR" value="mscm"/>
+                <stringAttribute key="org.eclipse.jdt.launching.VM_ARGUMENTS" value="-Dmarin.evn=DEV -Dlog4j.configuration=log4j_javabridge.xml"/>
+                <stringAttribute key="org.eclipse.jdt.launching.WORKING_DIRECTORY" value="${workspace_loc:mscm/bin}"/>
+                </launchConfiguration>
+            </data>
+        </sweetenedLaunch>
+    </target>
+</project>
