@@ -6,7 +6,7 @@
     <property name="lib.dir" value="lib"/>
     <property name="target.dir" value="target"/>
     <property name="project.name" value="${ant.project.name}"/>
-    <property name="serapeum.dir" value="../../serapeum"/>
+    <property name="serapeum.dir" value="../serapeum"/>
     <!--
         Inside of the serapeum jar.properties file, it looks like this:
 

@@ -7,8 +7,8 @@ import java.util.List;
 
 import org.apache.tools.ant.BuildException;
 import org.apache.tools.ant.taskdefs.MatchingTask;
+import org.apache.tools.ant.types.Reference;
 
-import com.googlecode.sweetened.typedef.SweetenedFileList;
 import com.googlecode.sweetened.typedef.SweetenedFileResource;
 import com.googlecode.sweetened.typedef.SweetenedPath;
 import com.googlecode.sweetened.typedef.SweetenedScope;
@@ -25,9 +25,9 @@ public class SweetenedClasspathTask extends MatchingTask
 {
     private String file;
     private String var;
-    private SweetenedXML xml;
-    private String sourcepath;
     private String varpath;
+    private String sourcepath;
+    private SweetenedXML xml;
     private List<SweetenedPath> classpaths = new ArrayList<SweetenedPath>();
     private boolean autoGen = true;
     private boolean debug = false;
@@ -40,7 +40,7 @@ public class SweetenedClasspathTask extends MatchingTask
     {
         if (getSweetenedBits().size() == 0)
         {
-            throw new BuildException("Missing classpath element within a sweetened element");
+            throw new BuildException("Missing sweetenedBits element within a sweetenedClasspath element");
         }
 
         if (getVar() != null && getVarpath() == null)
@@ -263,10 +263,20 @@ public class SweetenedClasspathTask extends MatchingTask
      * The list of ant &lt;sweetenedBits&gt; elements.
      */
     public void addConfiguredSweetenedBits(SweetenedPath classpath) {
-        // Lame... but seems to work. At this point, we just want to
-        // resolve by reference.
-        SweetenedPath path = (SweetenedPath)this.getProject().getReference(classpath.getRefid().getRefId());
-        classpaths.add(path);
+        // need to resolve nested parent paths by hand.
+        Reference ref = classpath.getRefid();
+        if (ref != null) {
+            Object obj = ref.getReferencedObject();
+            if (obj instanceof SweetenedPath) {
+                addConfiguredSweetenedBits((SweetenedPath)obj);
+                return;
+            }
+        }
+        SweetenedPath path = null;
+        if (classpath.getParent() != null) {
+            path = (SweetenedPath)this.getProject().getReference(classpath.getParent());
+            classpaths.add(path);
+        }
     }
 
     /**
@@ -285,14 +295,11 @@ public class SweetenedClasspathTask extends MatchingTask
         List<SweetenedFileResource> jars = new ArrayList<SweetenedFileResource>();
         for (SweetenedPath path : getSweetenedBits())
         {
-            for (SweetenedFileList sfl : path.getFileList())
+            for (SweetenedFileResource sfr : path.getSweetenedFileResources())
             {
-                for (SweetenedFileResource sfr : sfl.getFileResources())
-                {
-                    SweetenedScope sfrScope = sfr.getScope();
-                    if (sfrScope != null && (sfrScope == scope || sfrScope == SweetenedScope.ALL))
-                        jars.add(sfr);
-                }
+                SweetenedScope sfrScope = sfr.getScope();
+                if (sfrScope != null && (sfrScope == scope || sfrScope == SweetenedScope.ALL))
+                    jars.add(sfr);
             }
         }
         return jars;
