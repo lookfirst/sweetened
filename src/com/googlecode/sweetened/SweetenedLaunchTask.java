@@ -226,8 +226,9 @@ public class SweetenedLaunchTask extends MatchingTask
             for (SweetenedFileResource sfr : path.getSweetenedFileResources())
             {
                 SweetenedScope sfrScope = sfr.getScope();
-                if (sfrScope != null && (sfrScope == scope || sfrScope == SweetenedScope.ALL))
+                if (sfrScope != null && (sfrScope == scope || scope == SweetenedScope.ALL)) {
                     jars.add(sfr);
+                }
             }
         }
         return jars;
