@@ -275,8 +275,10 @@ public class SweetenedClasspathTask extends MatchingTask
         SweetenedPath path = null;
         if (classpath.getParent() != null) {
             path = (SweetenedPath)this.getProject().getReference(classpath.getParent());
-            classpaths.add(path);
+        } else {
+            path = classpath;
         }
+        classpaths.add(path);
     }
 
     /**
