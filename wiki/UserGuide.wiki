@@ -217,7 +217,7 @@ In order to use your sunion to compile your code, you need to use a bit of a hac
 {{{
 <target name="compile">
     <javac>
-        <classpath path="${toString:javac.classpath" />
+        <classpath path="${toString:javac.classpath}" />
     </javac>
 </target>
 }}}
