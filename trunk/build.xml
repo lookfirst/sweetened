@@ -161,6 +161,7 @@
             <fileset dir=".">
                 <include name="build.xml" />
                 <include name="example.xml" />
+                <include name="example-launch.xml" />
                 <include name="jar.properties" />
                 <include name="README.html" />
             </fileset>
