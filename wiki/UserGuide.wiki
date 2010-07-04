@@ -61,6 +61,10 @@ This system has worked for me just peachy except for one detail. I'd like to ass
 
 = Details =
 
+== Requirements ==
+
+Sweetened requires Ant 1.8.1 or greater and probably JDK 1.5 or greater.
+
 == Union ==
 
 In order to use Sweetened, you must tell Ant to use it by using a typedef near the top of your Ant build file (and specifying the path to the sweetened.jar file:
@@ -220,11 +224,11 @@ In order to use your sunion to compile your code, you need to use a bit of a hac
 == Using sunion to create a tar file ==
 
 {{{
- <tar destfile="${target.dir}/${project.name}.tgz" compression="gzip" longfile="gnu">
-	<mappedresources>
-		<resources refid="all.classpath" />
-		<globmapper from="*" to="lib/*"/>
-	</mappedresources>
+<tar destfile="${target.dir}/${project.name}.tgz" compression="gzip" longfile="gnu">
+    <mappedresources>
+        <resources refid="all.classpath" />
+        <globmapper from="*" to="lib/*"/>
+    </mappedresources>
 </tar>
 }}}
 
@@ -232,10 +236,10 @@ In order to use your sunion to compile your code, you need to use a bit of a hac
 
 {{{
 <war>
-	<mappedresources>
-		<resources refid="all.classpath" />
-		<globmapper from="*" to="WEB-INF/lib/*"/>
-	</mappedresources>
+    <mappedresources>
+        <resources refid="all.classpath" />
+        <globmapper from="*" to="WEB-INF/lib/*"/>
+    </mappedresources>
 </war>
 }}}
 
