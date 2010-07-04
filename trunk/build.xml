@@ -167,15 +167,19 @@
             </fileset>
         </copy>
 
-        <copy todir="${build.dist.dir}">
-            <fileset dir="${build.dir}">
-                <include name="*.jar" />
-            </fileset>
-        </copy>
-
         <copy todir="${build.dist.dir}/lib">
             <fileset dir="lib">
                 <include name="*.jar" />
+            	<exclude name="sweetened.jar" />
+            </fileset>
+            <fileset dir="${build.dir}">
+                <include name="sweetened.jar" />
+            </fileset>
+        </copy>
+
+        <copy todir="${build.dist.dir}">
+            <fileset dir="${build.dir}">
+                <include name="sweetened.jar" />
             </fileset>
         </copy>
 
