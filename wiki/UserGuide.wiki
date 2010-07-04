@@ -3,6 +3,8 @@
 
 <wiki:toc max_depth="2" />
 
+<wiki:gadget url="http://sweetened.googlecode.com/svn/wiki/adsense.xml" border="0" width="468" height="60" />
+
 = Introduction =
 
 Let me start off with a simple statement: I'm not a fan of Maven or Ivy. Period. Ant, by itself, works well enough for me. It is simple, easy to use, easy to train people on, very fast and creates no magic. Best of all, Ant is [http://simple.wikipedia.org/wiki/K.I.S.S. K.I.S.S.]. Yes, this project duplicates a lot of what both Maven and Ivy have been doing for years, but since I choose to not use them, I came up with my own arguably cleaner solution to the problem of declaring your jar files for your build.
