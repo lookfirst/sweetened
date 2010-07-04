@@ -1,4 +1,5 @@
 #summary UserGuide for Sweetened
+#labels Featured
 
 <wiki:toc max_depth="2" />
 
