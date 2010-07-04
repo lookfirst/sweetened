@@ -187,26 +187,26 @@ The .project file doesn't have any real magic in it, so I generate it with a sta
 {{{
 <target name=".eclipse">
 
-        <!-- I've removed the sweetenedClasspath for brevity -->
+    <!-- I've removed the sweetenedClasspath for brevity -->
 
-	<echoxml file=".project">
-		<projectDescription>
-			<name>${project.name}</name>
-			<comment></comment>
-			<projects>
-			</projects>
-			<buildSpec>
-				<buildCommand>
-					<name>org.eclipse.jdt.core.javabuilder</name>
-					<arguments>
-					</arguments>
-				</buildCommand>
-			</buildSpec>
-			<natures>
-				<nature>org.eclipse.jdt.core.javanature</nature>
-			</natures>
-		</projectDescription>
-	</echoxml>
+    <echoxml file=".project">
+        <projectDescription>
+            <name>${project.name}</name>
+            <comment></comment>
+            <projects>
+            </projects>
+            <buildSpec>
+                <buildCommand>
+                    <name>org.eclipse.jdt.core.javabuilder</name>
+                    <arguments>
+                    </arguments>
+                </buildCommand>
+            </buildSpec>
+            <natures>
+                <nature>org.eclipse.jdt.core.javanature</nature>
+            </natures>
+        </projectDescription>
+    </echoxml>
 </target>
 }}}
 
