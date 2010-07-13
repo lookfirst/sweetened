@@ -248,15 +248,14 @@ In order to use your sunion to compile your code, you need to use a bit of a hac
 or
 
 <war>
-	<mappedresources>
-		<resources refid="all.classpath" />
-		<chainedmapper>
-			<flattenmapper/>
-			<globmapper from="*" to="WEB-INF/lib/*"/>
-		</chainedmapper>
-	</mappedresources>
+    <mappedresources>
+        <resources refid="all.classpath" />
+        <chainedmapper>
+            <flattenmapper/>
+            <globmapper from="*" to="WEB-INF/lib/*"/>
+        </chainedmapper>
+    </mappedresources>
 </war>
-
 }}}
 
 == Generating Launch Configs ==
