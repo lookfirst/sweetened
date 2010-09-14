@@ -89,7 +89,7 @@ As I mentioned earlier, Sweetened is comprised of a few ant typedefs and tasks. 
 </sunion>
 }}}
 
-This is a very basic example. As you can see, I'm defining a special [http://ant.apache.org/manual/Types/resources.html#union Union resource] called 'filelist.classpath'. The nested filelist is based in the alexandria home directory that I discussed above and it defines three jar files, the scope of those jar files and the location to the source code. The location can be either a jar file, zip file or directory.
+This is a very basic example. As you can see, I'm defining a special [http://ant.apache.org/manual/Types/resources.html#union Union resource] called 'filelist.classpath'. The nested filelist is based in the alexandria home directory that I discussed above and it defines three jar files, the scope of those jar files and the location to the source code. The location can be either a jar file, zip file or directory and is the absolute location to the source code. In other words, the sfilelist directory is not appended to the beginning of the src attribute on the sfile. Yes, this is a bit confusing, but the reality is that the source code could exist outside of the sfilelist directory structure so I wanted to enable that possibility.
 
 == Scope ==
 
