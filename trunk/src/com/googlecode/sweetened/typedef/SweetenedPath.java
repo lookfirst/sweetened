@@ -48,7 +48,6 @@ public class SweetenedPath extends Union {
      * Any sfile's with the scope of ALL are included.
      */
     @Override
-    @SuppressWarnings("unchecked")
     protected Collection getCollection() {
         List<SweetenedFileResource> resources = null;
         if (this.getParent() != null) {
