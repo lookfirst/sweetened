@@ -98,7 +98,7 @@ public class SweetenedClasspathTask extends MatchingTask
             // Get the absolute path to the Eclipse variable.
             File varpath = new File(this.getVarpath());
             String varCanonicalPath = varpath.getCanonicalPath();
-            for (SweetenedFileResource jar : this.getJars(SweetenedScope.COMPILE))
+            for (SweetenedFileResource jar : this.getClasspathJars())
             {
                 File jarFile = jar.getFile();
                 if (jar.getFile().exists())
@@ -157,7 +157,7 @@ public class SweetenedClasspathTask extends MatchingTask
         List<ClasspathEntryElement> ceeList = new ArrayList<ClasspathEntryElement>();
         try
         {
-            for (SweetenedFileResource jar : this.getJars(SweetenedScope.COMPILE))
+            for (SweetenedFileResource jar : this.getClasspathJars())
             {
                 File jarFile = jar.getFile();
 
@@ -290,18 +290,21 @@ public class SweetenedClasspathTask extends MatchingTask
 
     /**
      * Combines all the sweetenedBits elements into
-     * a List of Strings. Only retreives jars of
-     * a specific scope and ALL.
+     * a List of Strings. Only retrieves jars if they
+     * are unit, compile or all.
      */
-    protected List<SweetenedFileResource> getJars(SweetenedScope scope) {
+    protected List<SweetenedFileResource> getClasspathJars() {
         List<SweetenedFileResource> jars = new ArrayList<SweetenedFileResource>();
         for (SweetenedPath path : getSweetenedBits())
         {
             for (SweetenedFileResource sfr : path.getSweetenedFileResources())
             {
                 SweetenedScope sfrScope = sfr.getScope();
-                if (sfrScope != null && (sfrScope == scope || sfrScope == SweetenedScope.ALL))
+                if (sfrScope != null && (sfrScope == SweetenedScope.COMPILE || 
+                                        sfrScope == SweetenedScope.ALL || 
+                                        sfrScope == SweetenedScope.UNIT)) {
                     jars.add(sfr);
+                }
             }
         }
         return jars;
