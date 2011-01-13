@@ -30,6 +30,8 @@ import org.tmatesoft.svn.core.wc.SVNWCClient;
 public class SweetenedVersionTask extends Task
 {
     private String sVersionPath = "sVersionPath";
+    private String sVersionBranchName = "sVersionBranchName";
+    private String sVersionWorkspaceLoc = "sVersionWorkspaceLoc";
     private String sVersionRevision = "sVersionRevision";
     private String sVersionVersion = "sVersion";
 
@@ -59,6 +61,13 @@ public class SweetenedVersionTask extends Task
             // ie: trunk/sweetened or branches/v10/sweetened
             String branch = url.substring(repositoryRootUrl.length() + 1);
             this.getProject().setProperty(sVersionPath, branch);
+            
+            // ie: trunk-sweetened or branches-v10-sweetened (for use as eclipse project name, which can't have slashes)
+            String branchName = branch.replaceAll("/", "-");
+            this.getProject().setProperty(sVersionBranchName, branchName);
+
+            // ie: ${workspace_loc:trunk-sweetened/bin} or ${workspace_loc:branches-v10-sweetened/bin} (for use in eclipse launch files)
+            this.getProject().setProperty(sVersionWorkspaceLoc, "${workspace_loc:" + branchName + "/bin}");
 
             String revision = new Long(info.getRevision().getNumber()).toString();
             this.getProject().setProperty(sVersionRevision, revision);
@@ -106,6 +115,26 @@ public class SweetenedVersionTask extends Task
         return sVersionPath;
     }
 
+    /** */
+    public void setBranchNameProperty(String sVersionBranchName) {
+        this.sVersionBranchName = sVersionBranchName;
+    }
+
+    /** */
+    public String getBranchNameProperty() {
+        return sVersionBranchName;
+    }
+
+    /** */
+    public void setWorkspaceLocProperty(String sVersionWorkspaceLoc) {
+        this.sVersionWorkspaceLoc = sVersionWorkspaceLoc;
+    }
+
+    /** */
+    public String getWorkspaceLocProperty() {
+        return sVersionWorkspaceLoc;
+    }
+    
     /** */
     public void setPathProperty(String sVersionPath) {
         this.sVersionPath = sVersionPath;
