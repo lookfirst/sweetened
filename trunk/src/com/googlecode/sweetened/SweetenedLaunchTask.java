@@ -114,7 +114,7 @@ public class SweetenedLaunchTask extends MatchingTask
                         outputSourcePath = null;
                     }
                 }
-                ListEntryElement cee = new ListEntryElement(jarCanonicalPath);
+                ListEntryElement cee = new ListEntryElement(jarCanonicalPath, outputSourcePath);
                 ceeList.add(cee);
             }
         }
