@@ -1,7 +1,5 @@
 package com.googlecode.sweetened;
 
-import java.io.File;
-
 import org.apache.tools.ant.BuildException;
 import org.apache.tools.ant.Task;
 import org.tmatesoft.svn.core.internal.io.dav.DAVRepositoryFactory;
@@ -52,7 +50,7 @@ public class SweetenedVersionTask extends Task
             SVNWCClient client = this.getSvnClient().getWCClient();
 
             // Execute svn info
-            SVNInfo info = client.doInfo(new File("."), SVNRevision.WORKING);
+            SVNInfo info = client.doInfo(this.getProject().getBaseDir(), SVNRevision.WORKING);
 
             // Get the urls
             String url = info.getURL().toDecodedString();
@@ -61,7 +59,7 @@ public class SweetenedVersionTask extends Task
             // ie: trunk/sweetened or branches/v10/sweetened
             String branch = url.substring(repositoryRootUrl.length() + 1);
             this.getProject().setProperty(sVersionPath, branch);
-            
+
             // ie: trunk-sweetened or branches-v10-sweetened (for use as eclipse project name, which can't have slashes)
             String branchName = branch.replaceAll("/", "-");
             this.getProject().setProperty(sVersionBranchName, branchName);
@@ -134,7 +132,7 @@ public class SweetenedVersionTask extends Task
     public String getWorkspaceLocProperty() {
         return sVersionWorkspaceLoc;
     }
-    
+
     /** */
     public void setPathProperty(String sVersionPath) {
         this.sVersionPath = sVersionPath;
