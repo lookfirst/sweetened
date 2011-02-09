@@ -3,7 +3,7 @@
 
 <wiki:toc max_depth="2" />
 
-<wiki:gadget url="http://sweetened.googlecode.com/svn/wiki/adsense.xml" border="0" width="468" height="60" />
+<wiki:gadget url="http://sweetened.googlecode.com/svn/wiki/adsense.xml" border="0" width="470" height="60" />
 
 = Introduction =
 
