@@ -56,8 +56,14 @@ public class SweetenedVersionTask extends Task
             String url = info.getURL().toDecodedString();
             String repositoryRootUrl = info.getRepositoryRootURL().toDecodedString();
 
-            // ie: trunk/sweetened or branches/v10/sweetened
-            String branch = url.substring(repositoryRootUrl.length() + 1);
+            String branch = null;
+            // we have a top level project, ie: http://foo.com/help
+            if (url.equals(repositoryRootUrl)) {
+                branch = url.substring(url.lastIndexOf('/') + 1);
+            } else {
+                // ie: trunk/sweetened or branches/v10/sweetened
+                branch = url.substring(repositoryRootUrl.length() + 1);
+            }
             this.getProject().setProperty(sVersionPath, branch);
 
             // ie: trunk-sweetened or branches-v10-sweetened (for use as eclipse project name, which can't have slashes)
