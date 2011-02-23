@@ -11,7 +11,6 @@ import org.apache.tools.ant.types.Reference;
 
 import com.googlecode.sweetened.typedef.SweetenedFileResource;
 import com.googlecode.sweetened.typedef.SweetenedPath;
-import com.googlecode.sweetened.typedef.SweetenedScope;
 import com.googlecode.sweetened.typedef.SweetenedXML;
 import com.googlecode.sweetened.util.ListEntryElement;
 
@@ -85,7 +84,7 @@ public class SweetenedLaunchTask extends MatchingTask
         List<ListEntryElement> ceeList = new ArrayList<ListEntryElement>();
         try
         {
-            for (SweetenedFileResource jar : this.getJars(SweetenedScope.ALL))
+            for (SweetenedFileResource jar : this.getJars())
             {
                 File jarFile = jar.getFile();
 
@@ -191,7 +190,7 @@ public class SweetenedLaunchTask extends MatchingTask
      * The list of ant &lt;sweetenedBits&gt; elements.
      */
     public void addConfiguredSweetenedBits(SweetenedPath classpath) {
-        // need to resolve nested parent paths by hand.
+        // need to resolve ref'd paths by hand.
         Reference ref = classpath.getRefid();
         if (ref != null) {
             Object obj = ref.getReferencedObject();
@@ -200,13 +199,7 @@ public class SweetenedLaunchTask extends MatchingTask
                 return;
             }
         }
-        SweetenedPath path = null;
-        if (classpath.getParent() != null) {
-            path = (SweetenedPath)this.getProject().getReference(classpath.getParent());
-        } else {
-            path = classpath;
-        }
-        classpaths.add(path);
+        classpaths.add(classpath);
     }
 
     /**
@@ -221,17 +214,11 @@ public class SweetenedLaunchTask extends MatchingTask
      * a List of Strings. Only retreives jars of
      * a specific scope and ALL.
      */
-    protected List<SweetenedFileResource> getJars(SweetenedScope scope) {
+    protected List<SweetenedFileResource> getJars() {
         List<SweetenedFileResource> jars = new ArrayList<SweetenedFileResource>();
         for (SweetenedPath path : getSweetenedBits())
         {
-            for (SweetenedFileResource sfr : path.getSweetenedFileResources())
-            {
-                SweetenedScope sfrScope = sfr.getScope();
-                if (sfrScope != null && (sfrScope == scope || scope == SweetenedScope.ALL)) {
-                    jars.add(sfr);
-                }
-            }
+        	jars.addAll(path.getSweetenedFileResources());
         }
         return jars;
     }

@@ -13,15 +13,19 @@
     <property name="build.dir" location="target" />
     <property name="classes.dir" location="${build.dir}/classes" />
     <property name="build.javadoc.dir" location="${build.dir}/javadoc" />
+    <property name="rtest.classes.dir" location="${build.dir}/classes-rtest" />
 
     <property name="javadoc.dir" location="javadoc" />
     <property name="lib.dir" value="lib"/>
     <property name="src.dir" location="src" />
+    <property name="rtest.dir" location="rtest" />
 
     <property name="build.debug" value="on" />
     <property name="build.deprecation" value="on" />
     <property name="ant.build.javac.target" value="1.5" />
     <property name="ant.build.javac.source" value="1.5" />
+	
+	<property name="junit.special.tests" value="**/*Test.class" />
 
     <tstamp><format property="YEAR" pattern="yyyy" /></tstamp>
 
@@ -33,17 +37,19 @@
     </path>
     -->
     <typedef resource="com/googlecode/sweetened/sweetened.xml"
-        classpath="${lib.dir}/sweetened.jar:${lib.dir}/${svnkit.jar}" />
+        classpath="${classes.dir}:${lib.dir}/${svnkit.jar}" />
     <sweetenedVersion />
 
-    <spath id="sweetened.classpath">
+    <spath id="sweetened.classpath" >
         <sfilelist dir="${lib.dir}">
-            <sfile name="${ant.jar}" scope="compile" src="${ant.src}" />
-            <sfile name="${svnkit.jar}" scope="compile" />
+            <sfile name="${ant.jar}" scope="all" src="${ant.src}" />
+        	<sfile name="${junit.jar}" scope="unit" />
+            <sfile name="${svnkit.jar}" scope="all" />
         </sfilelist>
     </spath>
-    <spath id="javadoc.classpath" scope="all" parent="sweetened.classpath" />
     <spath id="javac.classpath" scope="compile" parent="sweetened.classpath" />
+    <spath id="javadoc.classpath" scope="all" parent="sweetened.classpath" />
+	<spath id="junit.classpath" scope="unit" parent="sweetened.classpath" />
 
     <target name="init">
         <taskdef classname="net.bluecow.googlecode.ant.GoogleCodeUploadTask" classpath="${lib.dir}/ant-googlecode-0.0.2.jar" name="gcupload"/>
@@ -57,12 +63,13 @@
 
     <target name=".eclipse" depends="jar">
         <sweetenedClasspath file=".classpath">
-            <sweetenedBits refid="sweetened.classpath" />
+            <sweetenedBits refid="junit.classpath" />
             <data>
                 <classpath>
                     <classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
                     <sweetenedEntries />
                     <classpathentry kind="src" path="src"/>
+                    <classpathentry kind="src" path="rtest"/>
                     <classpathentry kind="output" path="_eclipse"/>
                 </classpath>
             </data>
@@ -109,6 +116,45 @@
         </sync>
     </target>
 
+    <target name="rtest-classes" depends="classes">
+        <mkdir dir="${rtest.classes.dir}"/>
+
+        <javac srcdir="${rtest.dir}"
+                destdir="${rtest.classes.dir}"
+                debug="${build.debug}"
+                deprecation="${build.deprecation}"
+                includeantruntime="false"
+            >
+            <classpath path="${toString:junit.classpath}"/>
+        	<classpath>
+                <path location="${classes.dir}"/>
+            </classpath>
+        </javac>
+
+        <sync todir="${rtest.classes.dir}">
+            <preserveintarget>
+                <include name="**/*.class"/>
+            </preserveintarget>
+            <fileset dir="src" defaultexcludes="yes">
+                <include name="**/*.xml"/>
+            </fileset>
+        </sync>
+    </target>
+	
+    <target name="rtest" depends="rtest-classes" description="Run regression tests">
+        <junit printsummary="yes" showoutput="yes" fork="yes" forkmode="once">
+            <classpath path="${toString:junit.classpath}"/>
+            <classpath path="${classes.dir}" />
+            <classpath path="${rtest.classes.dir}" />
+            <formatter type="plain" usefile="false" />
+            <batchtest todir="${build.dir}">
+                <fileset dir="${rtest.classes.dir}">
+                    <include name="${junit.special.tests}" />
+                </fileset>
+            </batchtest>
+        </junit>
+    </target>
+	
     <target name="jar" depends="classes">
         <jar jarfile="${build.dir}/sweetened.jar" basedir="${build.dir}/classes"
               includes="**/*.class,**/*.xml">

@@ -2,17 +2,23 @@ package com.googlecode.sweetened.typedef;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Iterator;
+import java.util.LinkedHashSet;
 import java.util.List;
 
 import org.apache.tools.ant.types.resources.Union;
 
 
 /**
- * Wrapper around an ant union element.
+ * Wrapper around an ant union element. Contains the logic which includes or excludes
+ * resources using the scope attribute of the resource and the ref'd path.
+ * 
  */
 public class SweetenedPath extends Union {
 
     private List<SweetenedFileList> fileListList = new ArrayList<SweetenedFileList>();
+
+    // default to the most strict - compile
     private SweetenedScope scope = null;
     private String parent = null;
 
@@ -40,83 +46,96 @@ public class SweetenedPath extends Union {
      * The scope for this path.
      */
     public SweetenedScope getScope() {
-        return scope;
+    	return this.scope;
     }
-
+    
     /**
      * This method applies the current path scope to the objects it returns.
      * Any sfile's with the scope of ALL are included.
      */
-    @Override
+    @SuppressWarnings("rawtypes")
+	@Override
     protected Collection getCollection() {
-        List<SweetenedFileResource> resources = null;
-        if (this.getParent() != null) {
-            Object parentRefObj = this.getProject().getReference(this.getParent());
-            if (parentRefObj instanceof SweetenedPath) {
-                SweetenedPath parentRef = (SweetenedPath)parentRefObj;
+    	
+        // use a LinkedHashSet to de-dupe, but preserve order
+    	LinkedHashSet<SweetenedFileResource> resources = new LinkedHashSet<SweetenedFileResource>();
 
-                // Cache the parents scope and then
-                // set the parents scope to the current scope
-                SweetenedScope tmpScope = null;
-                if (this.getScope() != null) {
-                    tmpScope = parentRef.getScope();
-                    parentRef.setScope(this.getScope().name());
-                }
+        resources.addAll(getSweetenedFileResources(getScope()));
 
-                // Recursively call the parent.
-                Collection result = parentRef.getCollection();
-
-                // Return the parents scope back to what it was.
-                if (tmpScope != null)
-                    parentRef.setScope(tmpScope.name());
-
-                return result;
-            }
-        } else {
-            resources = this.getSweetenedFileResources();
-        }
-
-        Collection<SweetenedFileResource> sfrList = new ArrayList<SweetenedFileResource>();
-
-        // Filter out the items from the scopes we care about.
-        for (SweetenedFileResource sfr : resources) {
-            if (isInScope(sfr.getScope())) {
-                sfrList.add(sfr);
-            }
-        }
-
-        return sfrList;
+        return resources;
     }
 
     /**
      * Override this method to change the behavior for dealing with scope.
      * all > unit|runtime > compile
      */
-    protected boolean isInScope(SweetenedScope scope) {
-        if (scope == null) return false;
+    protected static boolean isInScope(SweetenedScope pathScope, SweetenedScope jarScope) {
+        if (jarScope == null) {
+        	return pathScope == null || pathScope == SweetenedScope.ALL;
+        }
         // If either the passed in scope or this path's scope is all or equal to each other
-        if (scope == SweetenedScope.ALL || (this.getScope() != null && this.getScope() == SweetenedScope.ALL) || scope == this.getScope()) {
+        if (jarScope == SweetenedScope.ALL || pathScope == SweetenedScope.ALL || jarScope == pathScope) {
             return true;
         // If this path's scope is either unit or runtime and the passed in scope is compile, then we are in scope.
-        } else if ((this.getScope() != null && (this.getScope() == SweetenedScope.UNIT || this.getScope() == SweetenedScope.RUNTIME)) && scope == SweetenedScope.COMPILE) {
+        } else if ((pathScope == SweetenedScope.UNIT || pathScope == SweetenedScope.RUNTIME) && jarScope == SweetenedScope.COMPILE) {
             return true;
         }
         return false;
     }
 
     /**
-     * Gets the list of SweetenedFileResource objects that are contained within this path.
+     * Gets the list of SweetenedFileResource objects that are contained within this path at the desired scope.
+     * 
+     * If pathScope is null, all of the resources are returned.
      */
-    public List<SweetenedFileResource> getSweetenedFileResources() {
-        List<SweetenedFileResource> sfrList = new ArrayList<SweetenedFileResource>();
-        for (SweetenedFileList sfl : this.getFileList()) {
-            List<SweetenedFileResource> fileResources = sfl.getFileResources();
-            sfrList.addAll(fileResources);
+    private List<SweetenedFileResource> getSweetenedFileResources(SweetenedScope pathScope) {
+    	
+    	List<SweetenedFileResource> resources = getAllFileResources();
+    	
+        // if the path is marked with a scope other than all, then filter down the sweetened bits
+        if (pathScope != SweetenedScope.ALL) {
+	        for (Iterator<SweetenedFileResource> itr = resources.iterator(); itr.hasNext(); ) {
+	        	SweetenedFileResource resource = itr.next();
+	        	SweetenedScope resourceScope = resource.getScope();
+	            if (!isInScope(pathScope, resourceScope)) {
+	            	itr.remove();
+	            }
+	        }
         }
-
-        return sfrList;
+        return resources;
     }
 
+    /**
+     * Gets all the file resources ref'd by this element, including parent elements.
+     */
+    private List<SweetenedFileResource> getAllFileResources() {
+        List<SweetenedFileResource> resources = new ArrayList<SweetenedFileResource>();
+        
+        // add in parent resources
+        if (getParent() != null) {
+            Object parentRefObj = getProject().getReference(getParent());
+            if (parentRefObj instanceof SweetenedPath) {
+                SweetenedPath parentRef = (SweetenedPath)parentRefObj;
+                
+                // add all the parent resources that should be included with the current path's scope
+                resources.addAll(parentRef.getAllFileResources());
+            }
+        }
+        
+        for (SweetenedFileList sfl : getFileList()) {
+        	resources.addAll(sfl.getFileResources());
+        }
+        
+        return resources;
+    }
+    
+    /**
+     * Gets the list of SweetenedFileResource objects that are contained within this path at the path's designated scope.
+     */
+    public List<SweetenedFileResource> getSweetenedFileResources() {
+    	return getSweetenedFileResources(getScope());
+    }
+    
     /**
      * The parent path that this path refers to.
      */
