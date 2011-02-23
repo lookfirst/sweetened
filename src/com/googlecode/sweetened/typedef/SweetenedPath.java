@@ -19,7 +19,7 @@ public class SweetenedPath extends Union {
     private List<SweetenedFileList> fileListList = new ArrayList<SweetenedFileList>();
 
     // default to the most strict - compile
-    private SweetenedScope scope = null;
+    private SweetenedScope scope = SweetenedScope.COMPILE;
     private String parent = null;
 
     /** */
