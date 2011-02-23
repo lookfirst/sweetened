@@ -11,7 +11,6 @@ import org.apache.tools.ant.types.Reference;
 
 import com.googlecode.sweetened.typedef.SweetenedFileResource;
 import com.googlecode.sweetened.typedef.SweetenedPath;
-import com.googlecode.sweetened.typedef.SweetenedScope;
 import com.googlecode.sweetened.typedef.SweetenedXML;
 import com.googlecode.sweetened.util.ClasspathEntryElement;
 
@@ -263,7 +262,7 @@ public class SweetenedClasspathTask extends MatchingTask
      * The list of ant &lt;sweetenedBits&gt; elements.
      */
     public void addConfiguredSweetenedBits(SweetenedPath classpath) {
-        // need to resolve nested parent paths by hand.
+    	// need to resolve ref'd paths by hand.
         Reference ref = classpath.getRefid();
         if (ref != null) {
             Object obj = ref.getReferencedObject();
@@ -272,13 +271,7 @@ public class SweetenedClasspathTask extends MatchingTask
                 return;
             }
         }
-        SweetenedPath path = null;
-        if (classpath.getParent() != null) {
-            path = (SweetenedPath)this.getProject().getReference(classpath.getParent());
-        } else {
-            path = classpath;
-        }
-        classpaths.add(path);
+        classpaths.add(classpath);
     }
 
     /**
@@ -297,15 +290,7 @@ public class SweetenedClasspathTask extends MatchingTask
         List<SweetenedFileResource> jars = new ArrayList<SweetenedFileResource>();
         for (SweetenedPath path : getSweetenedBits())
         {
-            for (SweetenedFileResource sfr : path.getSweetenedFileResources())
-            {
-                SweetenedScope sfrScope = sfr.getScope();
-                if (sfrScope != null && (sfrScope == SweetenedScope.COMPILE || 
-                                        sfrScope == SweetenedScope.ALL || 
-                                        sfrScope == SweetenedScope.UNIT)) {
-                    jars.add(sfr);
-                }
-            }
+            jars.addAll(path.getSweetenedFileResources());
         }
         return jars;
     }
