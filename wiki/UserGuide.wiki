@@ -121,45 +121,7 @@ Now that we have an annotated classpath, we can use this for all sorts of fun.
 
 == Generating .classpath files ==
 
-If you have ever looked at a .classpath file, it basically is a simple xml file that contains a list of jar files and a few other details in order to tell Eclipse how to build your project. I've implemented things so that you can either define a global variable in Eclipse and all of the jar paths will be relative to that variable or you can generate a .classpath where all paths are absolute. Let's start off with an example of the former which uses the same filelist.classpath defined in the examples above:
-
-{{{
-<target name=".eclipse">
-        <sweetenedClasspath file=".classpath"
-            var="ALEXANDRIA_HOME" varpath="${alexandria.home}" sourcepath="src" debug="true">
-            <sweetenedBits refid="filelist.classpath" />
-            <data>
-                <classpath>
-                    <classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
-                    <sweetenedEntries />
-                    <classpathentry kind="lib" path="bin/log4j/dev"/>
-                    <classpathentry kind="lib" path="etc"/>
-                    <classpathentry kind="lib" path="resources/publisher"/>
-                    <classpathentry kind="src" path="src"/>
-                    <classpathentry kind="src" path="test/java"/>
-                    <classpathentry kind="output" path="_eclipse"/>
-                </classpath>
-            </data>
-        </sweetenedClasspath>
-</target>
-}}}
-
-We have defined a variable in Eclipse called ALEXANDRIA_HOME with a path of ${alexandria.home}. If you don't define a src attribute in the sfile element and you define the optional sourcepath attribute, then it will get appended to the jar filename to generate the convention of pointing to the source jar files. This way you can have an alexandria directory structure that looks like this:
-
-{{{
-    /alexandria
-        jar.properties
-        /thirdparty/junit.jar
-        /src/junit.jar
-
-And jar.properties is:
-
-junit.jar=thirdparty/junit.jar
-}}}
-
-debug=true will cause the .classpath output to be printed to the ant logging console.
-
-Probably the best way to define the generated .classpath in Ant is to generate one using Eclipse and then copy the output into the sweetenedClasspath element. Add a {{{<sweetenedEntries />}}} element where you want your jar files to get replaced.
+If you have ever looked at a .classpath file, it basically is a simple xml file that contains a list of jar files and a few other details in order to tell Eclipse how to build your project. I've implemented things so that you can either define a global variable in Eclipse and all of the jar paths will be relative to that variable or you can generate a .classpath where all paths are absolute. 
 
 This is an example of building a .classpath that just uses absoulte paths. This is the preferred way of doing things because it doesn't require all your developers to manually define a variable in Eclipse:
 
@@ -182,6 +144,46 @@ This is an example of building a .classpath that just uses absoulte paths. This 
         </sweetenedClasspath>
 </target>
 }}}
+
+This example uses a variable in Eclipse called ALEXANDRIA_HOME with a path of ${alexandria.home} and the same filelist.classpath defined in the examples above:
+
+{{{
+<target name=".eclipse">
+        <sweetenedClasspath file=".classpath"
+            var="ALEXANDRIA_HOME" varpath="${alexandria.home}" sourcepath="src" debug="true">
+            <sweetenedBits refid="filelist.classpath" />
+            <data>
+                <classpath>
+                    <classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
+                    <sweetenedEntries />
+                    <classpathentry kind="lib" path="bin/log4j/dev"/>
+                    <classpathentry kind="lib" path="etc"/>
+                    <classpathentry kind="lib" path="resources/publisher"/>
+                    <classpathentry kind="src" path="src"/>
+                    <classpathentry kind="src" path="test/java"/>
+                    <classpathentry kind="output" path="_eclipse"/>
+                </classpath>
+            </data>
+        </sweetenedClasspath>
+</target>
+}}}
+
+If you don't define a src attribute in the sfile element and you define the optional sourcepath attribute, then it will get appended to the jar filename to generate the convention of pointing to the source jar files. This way you can have an alexandria directory structure that looks like this:
+
+{{{
+    /alexandria
+        jar.properties
+        /thirdparty/junit.jar
+        /src/junit.jar
+
+And jar.properties is:
+
+junit.jar=thirdparty/junit.jar
+}}}
+
+debug=true will cause the .classpath output to be printed to the ant logging console.
+
+Probably the best way to define the initial generated .classpath in Ant is to generate one using Eclipse and then copy the output into the sweetenedClasspath element. Add a {{{<sweetenedEntries />}}} element where you want your jar files to get replaced.
 
 == Generating .project files ==
 
