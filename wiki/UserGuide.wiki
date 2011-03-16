@@ -68,7 +68,7 @@ This system has worked for me just peachy except for one detail. I'd like to ass
 
 Sweetened requires Ant 1.8.1 or greater and probably JDK 1.5 or greater.
 
-== Union ==
+== Usage ==
 
 In order to use Sweetened, you must tell Ant to use it by using a typedef near the top of your Ant build file (and specifying the path to the sweetened.jar file:
 
@@ -76,6 +76,7 @@ In order to use Sweetened, you must tell Ant to use it by using a typedef near t
     <typedef resource="com/googlecode/sweetened/sweetened.xml" classpath="sweetened.jar" />
 }}}
 
+== Union ==
 
 As I mentioned earlier, Sweetened is comprised of a few ant typedefs and tasks. Let's go over the typedefs first. In order to add more information to the jars, I had to come up with my own classes which define Ant Resources.
 
