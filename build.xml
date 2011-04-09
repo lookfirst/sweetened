@@ -45,6 +45,7 @@
             <sfile name="${ant.jar}" scope="all" src="${ant.src}" />
         	<sfile name="${junit.jar}" scope="unit" />
             <sfile name="${svnkit.jar}" scope="all" />
+            <sfile name="${jgit.jar}" scope="all" />
         </sfilelist>
     </spath>
     <spath id="javac.classpath" scope="compile" parent="sweetened.classpath" />
