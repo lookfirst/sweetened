@@ -5,7 +5,7 @@ import java.io.File;
 import org.apache.tools.ant.Project;
 
 /**
- * 
+ * Returns empty-ish branch results.
  *
  */
 public class NullRepositoryInfo implements ProjectRepositoryInfo {
