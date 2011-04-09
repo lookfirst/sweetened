@@ -1,25 +1,16 @@
 package com.googlecode.sweetened;
 
+import java.io.File;
+
 import org.apache.tools.ant.BuildException;
 import org.apache.tools.ant.Task;
-import org.tmatesoft.svn.core.internal.io.dav.DAVRepositoryFactory;
-import org.tmatesoft.svn.core.internal.io.fs.FSRepositoryFactory;
-import org.tmatesoft.svn.core.internal.io.svn.SVNRepositoryFactoryImpl;
-import org.tmatesoft.svn.core.wc.SVNClientManager;
-import org.tmatesoft.svn.core.wc.SVNInfo;
-import org.tmatesoft.svn.core.wc.SVNRevision;
-import org.tmatesoft.svn.core.wc.SVNWCClient;
+
+import com.googlecode.sweetened.git.GitProjectInfo;
+import com.googlecode.sweetened.svn.SubversionProjectInfo;
 
 /**
- * Simple task which uses svnkit to determine the version of a project
- * that is stored in svn with a path like this:
- *
- * http://svn/trunk/project
- * http://svn/branches/v10/project
- *
- * The output would be something like:
- *  trunk/project-23423 or branches/v10/project-23432 or
- *  trunk-23534
+ * Simple task which populates various sweetened properties based on repository.
+ * 
  *
  * See the example.xml for an example of the usage.
  *
@@ -33,9 +24,6 @@ public class SweetenedVersionTask extends Task
     private String sVersionRevision = "sVersionRevision";
     private String sVersionVersion = "sVersion";
 
-    /** */
-    private SVNClientManager manager = null;
-
     /**
      * The main deal.
      */
@@ -44,26 +32,11 @@ public class SweetenedVersionTask extends Task
     {
         try
         {
-            setupSvnKit();
-
-            // Get the WC Client
-            SVNWCClient client = this.getSvnClient().getWCClient();
-
-            // Execute svn info
-            SVNInfo info = client.doInfo(this.getProject().getBaseDir(), SVNRevision.WORKING);
-
-            // Get the urls
-            String url = info.getURL().toDecodedString();
-            String repositoryRootUrl = info.getRepositoryRootURL().toDecodedString();
-
-            String branch = null;
-            // we have a top level project, ie: http://foo.com/help
-            if (url.equals(repositoryRootUrl)) {
-                branch = url.substring(url.lastIndexOf('/') + 1);
-            } else {
-                // ie: trunk/sweetened or branches/v10/sweetened
-                branch = url.substring(repositoryRootUrl.length() + 1);
-            }
+        	ProjectRepositoryInfo info = getProjectInfo();
+        	
+        	String branch = info.getBranch();
+        	String revision = info.getRevision();
+        	
             this.getProject().setProperty(sVersionPath, branch);
 
             // ie: trunk-sweetened or branches-v10-sweetened (for use as eclipse project name, which can't have slashes)
@@ -73,7 +46,6 @@ public class SweetenedVersionTask extends Task
             // ie: ${workspace_loc:trunk-sweetened/bin} or ${workspace_loc:branches-v10-sweetened/bin} (for use in eclipse launch files)
             this.getProject().setProperty(sVersionWorkspaceLoc, "${workspace_loc:" + branchName + "/bin}");
 
-            String revision = new Long(info.getRevision().getNumber()).toString();
             this.getProject().setProperty(sVersionRevision, revision);
 
             this.getProject().setProperty(sVersionVersion, branch.replace("/", "-") + "-" + revision);
@@ -85,36 +57,46 @@ public class SweetenedVersionTask extends Task
     }
 
     /**
-     * Initializes the library to work with a repository via different
-     * protocols.
+     * First try subversion, then try git, then just retrieve base info from the project.
+     * 
+     * The method catches ClassDefNotFoundErrors so you don't have to include svn task
+     * or jgit if you don't want to use them.
      */
-    private void setupSvnKit() {
-        /*
-         * For using over http:// and https://
-         */
-        DAVRepositoryFactory.setup();
-        /*
-         * For using over svn:// and svn+xxx://
-         */
-        SVNRepositoryFactoryImpl.setup();
+    private ProjectRepositoryInfo getProjectInfo() {
+    	File baseDir = this.getProject().getBaseDir();
+    	
+    	ProjectRepositoryInfo info = null;
+    	try {
+    		info = new SubversionProjectInfo();
+        	if (!info.init(baseDir)) {
+        		info = null;
+        	}
+    	} catch (Throwable e) {
+    		/** ignore exceptions AND errors */
+    	}
+    	
+    	if (info == null) {
+	    	try {
+	    		info = new GitProjectInfo();
+	        	if (!info.init(baseDir)) {
+	        		info = null;
+	        	}
+	    	} catch (Throwable e) {
+	    		/** ignore exceptions AND errors */
+	    	}
+    	}
+    	if (info == null) {
+    		/*
+    		 * Fall back to null info, which is guaranteed to return *something*
+    		 */
+    		info = new NullRepositoryInfo(this.getProject());
+    		info.init(baseDir);
+    	}
+    	
+    	return info;
+	}
 
-        /*
-         * For using over file:///
-         */
-        FSRepositoryFactory.setup();
-
-        /*
-         * Create the client manager with defaults
-         */
-        this.manager = SVNClientManager.newInstance();
-    }
-
-    /** */
-    public SVNClientManager getSvnClient() {
-        return this.manager;
-    }
-
-    /** */
+	/** */
     public String getPathProperty() {
         return sVersionPath;
     }
