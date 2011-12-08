@@ -2,255 +2,263 @@
 
 <project basedir="." name="sweetened" default="all">
 
-    <property file="user.properties" />
-    <property file="${user.home}/build.properties" />
-    <property file="jar.properties"/>
-    <property file="build.credentials.properties" />
+	<property file="user.properties" />
+	<property file="${user.home}/build.properties" />
+	<property file="jar.properties"/>
+	<property file="build.credentials.properties" />
 
-    <property name="project.name" value="${ant.project.name}"/>
+	<property name="project.name" value="${ant.project.name}"/>
 
-    <property name="base.dir" location="." />
-    <property name="build.dir" location="target" />
-    <property name="classes.dir" location="${build.dir}/classes" />
-    <property name="build.javadoc.dir" location="${build.dir}/javadoc" />
-    <property name="rtest.classes.dir" location="${build.dir}/classes-rtest" />
+	<property name="base.dir" location="." />
+	<property name="build.dir" location="target" />
+	<property name="classes.dir" location="${build.dir}/classes" />
+	<property name="build.javadoc.dir" location="${build.dir}/javadoc" />
+	<property name="rtest.classes.dir" location="${build.dir}/classes-rtest" />
 
-    <property name="javadoc.dir" location="javadoc" />
-    <property name="lib.dir" value="lib"/>
-    <property name="src.dir" location="src" />
-    <property name="rtest.dir" location="rtest" />
+	<property name="javadoc.dir" location="javadoc" />
+	<property name="lib.dir" value="lib"/>
+	<property name="src.dir" location="src" />
+	<property name="rtest.dir" location="rtest" />
 
-    <property name="build.debug" value="on" />
-    <property name="build.deprecation" value="on" />
-    <property name="ant.build.javac.target" value="1.5" />
-    <property name="ant.build.javac.source" value="1.5" />
-	
+	<property name="build.debug" value="on" />
+	<property name="build.deprecation" value="on" />
+	<property name="ant.build.javac.target" value="1.5" />
+	<property name="ant.build.javac.source" value="1.5" />
+
 	<property name="junit.special.tests" value="**/*Test.class" />
 
-    <tstamp><format property="YEAR" pattern="yyyy" /></tstamp>
+	<tstamp>
+		<format property="YEAR" pattern="yyyy" />
+	</tstamp>
 
-    <!-- Useful for the bootstrap process
-    <path id="sweetened.classpath">
-        <filelist dir="${lib.dir}">
-            <file name="${ant.jar}" />
-        </filelist>
-    </path>
-    -->
-    <typedef resource="com/googlecode/sweetened/sweetened.xml"
-        classpath="${classes.dir}:${lib.dir}/${svnkit.jar}" />
-    <sweetenedVersion />
+	<!-- Useful for the bootstrap process
+	<path id="javac.classpath">
+		<fileset dir="${lib.dir}">
+			<include name="*.jar" />
+		</fileset>
+	</path>
+	-->
+	<!--
+	-->
+	<typedef resource="com/googlecode/sweetened/sweetened.xml"
+			classpath="${classes.dir}:${lib.dir}/${svnkit.jar}" />
+	<sweetenedVersion />
 
-    <spath id="sweetened.classpath" >
-        <sfilelist dir="${lib.dir}">
-            <sfile name="${ant.jar}" scope="all" src="${ant.src}" />
-        	<sfile name="${junit.jar}" scope="unit" />
-            <sfile name="${svnkit.jar}" scope="all" />
-            <sfile name="${jgit.jar}" scope="all" />
-        </sfilelist>
-    </spath>
-    <spath id="javac.classpath" scope="compile" parent="sweetened.classpath" />
-    <spath id="javadoc.classpath" scope="all" parent="sweetened.classpath" />
+	<spath id="sweetened.classpath" >
+		<sfilelist dir="${lib.dir}">
+			<sfile name="${ant.jar}" scope="all" src="${ant.src}" />
+			<sfile name="${junit.jar}" scope="unit" />
+			<sfile name="${svnkit.jar}" scope="all" />
+			<sfile name="${jgit.jar}" scope="all" />
+		</sfilelist>
+	</spath>
+	<spath id="javac.classpath" scope="compile" parent="sweetened.classpath" />
+	<spath id="javadoc.classpath" scope="all" parent="sweetened.classpath" />
 	<spath id="junit.classpath" scope="unit" parent="sweetened.classpath" />
 
-    <target name="init">
-        <taskdef classname="net.bluecow.googlecode.ant.GoogleCodeUploadTask" classpath="${lib.dir}/ant-googlecode-0.0.2.jar" name="gcupload"/>
+	<target name="init">
+		<taskdef classname="net.bluecow.googlecode.ant.GoogleCodeUploadTask" classpath="${lib.dir}/ant-googlecode-0.0.2.jar" name="gcupload" />
 
-        <property name="version" value="${sVersion}" />
-        <property name="build.version" value="${sVersion}" />
+		<property name="version" value="${sVersion}" />
+		<property name="build.version" value="${sVersion}" />
 
-        <property name="build.dist.dir" location="${build.dir}/${ant.project.name}-${version}"/>
-        <property name="build.dist.zip" location="${build.dir}/${ant.project.name}-${version}.zip"/>
-    </target>
+		<property name="build.dist.dir" location="${build.dir}/${ant.project.name}-${version}" />
+		<property name="build.dist.zip" location="${build.dir}/${ant.project.name}-${version}.zip" />
+	</target>
 
-    <target name=".eclipse" depends="jar">
-        <sweetenedClasspath file=".classpath">
-            <sweetenedBits refid="junit.classpath" />
-            <data>
-                <classpath>
-                    <classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
-                    <sweetenedEntries />
-                    <classpathentry kind="src" path="src"/>
-                    <classpathentry kind="src" path="rtest"/>
-                    <classpathentry kind="output" path="_eclipse"/>
-                </classpath>
-            </data>
-        </sweetenedClasspath>
-        <echoxml file=".project">
-            <projectDescription>
-                <name>${project.name}</name>
-                <comment></comment>
-                <projects>
-                </projects>
-                <buildSpec>
-                    <buildCommand>
-                        <name>org.eclipse.jdt.core.javabuilder</name>
-                        <arguments>
-                        </arguments>
-                    </buildCommand>
-                </buildSpec>
-                <natures>
-                    <nature>org.eclipse.jdt.core.javanature</nature>
-                </natures>
-            </projectDescription>
-        </echoxml>
-    </target>
+	<target name=".eclipse" depends="jar">
+		<sweetenedClasspath file=".classpath">
+			<sweetenedBits refid="junit.classpath" />
+			<data>
+				<classpath>
+					<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
+					<sweetenedEntries />
+					<classpathentry kind="src" path="src"/>
+					<classpathentry kind="src" path="rtest"/>
+					<classpathentry kind="output" path="_eclipse"/>
+				</classpath>
+			</data>
+		</sweetenedClasspath>
+		<echoxml file=".project">
+			<projectDescription>
+				<name>${project.name}</name>
+				<comment>
+				</comment>
+				<projects>
+				</projects>
+				<buildSpec>
+					<buildCommand>
+						<name>org.eclipse.jdt.core.javabuilder</name>
+						<arguments>
+						</arguments>
+					</buildCommand>
+				</buildSpec>
+				<natures>
+					<nature>org.eclipse.jdt.core.javanature</nature>
+				</natures>
+			</projectDescription>
+		</echoxml>
+	</target>
 
-    <target name="classes" depends="init">
-        <mkdir dir="${build.dir}/classes"/>
+	<target name="classes" depends="init">
+		<mkdir dir="${build.dir}/classes"/>
 
-        <javac srcdir="${src.dir}"
-                destdir="${classes.dir}"
-                debug="${build.debug}"
-                deprecation="${build.deprecation}"
-                includeantruntime="false"
-            >
-            <classpath path="${toString:javac.classpath}"/>
-        </javac>
+		<javac srcdir="${src.dir}"
+			destdir="${classes.dir}"
+			debug="${build.debug}"
+			deprecation="${build.deprecation}"
+			includeantruntime="false">
+			<classpath path="${toString:javac.classpath}"/>
+			<!--
+			<classpath refid="javac.classpath" />
+			-->
+		</javac>
 
-        <sync todir="${build.dir}/classes">
-            <preserveintarget>
-                <include name="**/*.class"/>
-            </preserveintarget>
-            <fileset dir="src" defaultexcludes="yes">
-                <include name="**/*.xml"/>
-            </fileset>
-        </sync>
-    </target>
+		<sync todir="${build.dir}/classes">
+			<preserveintarget>
+				<include name="**/*.class"/>
+			</preserveintarget>
+			<fileset dir="src" defaultexcludes="yes">
+				<include name="**/*.xml"/>
+			</fileset>
+		</sync>
+	</target>
 
-    <target name="rtest-classes" depends="classes">
-        <mkdir dir="${rtest.classes.dir}"/>
+	<target name="rtest-classes" depends="classes">
+		<mkdir dir="${rtest.classes.dir}"/>
 
-        <javac srcdir="${rtest.dir}"
-                destdir="${rtest.classes.dir}"
-                debug="${build.debug}"
-                deprecation="${build.deprecation}"
-                includeantruntime="false"
-            >
-            <classpath path="${toString:junit.classpath}"/>
-        	<classpath>
-                <path location="${classes.dir}"/>
-            </classpath>
-        </javac>
+		<javac srcdir="${rtest.dir}"
+				destdir="${rtest.classes.dir}"
+				debug="${build.debug}"
+				deprecation="${build.deprecation}"
+				includeantruntime="false"
+				>
+			<classpath path="${toString:junit.classpath}"/>
+			<classpath>
+				<path location="${classes.dir}"/>
+			</classpath>
+		</javac>
 
-        <sync todir="${rtest.classes.dir}">
-            <preserveintarget>
-                <include name="**/*.class"/>
-            </preserveintarget>
-            <fileset dir="src" defaultexcludes="yes">
-                <include name="**/*.xml"/>
-            </fileset>
-        </sync>
-    </target>
-	
-    <target name="rtest" depends="rtest-classes" description="Run regression tests">
-        <junit printsummary="yes" showoutput="yes" fork="yes" forkmode="once">
-            <classpath path="${toString:junit.classpath}"/>
-            <classpath path="${classes.dir}" />
-            <classpath path="${rtest.classes.dir}" />
-            <formatter type="plain" usefile="false" />
-            <batchtest todir="${build.dir}">
-                <fileset dir="${rtest.classes.dir}">
-                    <include name="${junit.special.tests}" />
-                </fileset>
-            </batchtest>
-        </junit>
-    </target>
-	
-    <target name="jar" depends="classes">
-        <jar jarfile="${build.dir}/sweetened.jar" basedir="${build.dir}/classes"
-              includes="**/*.class,**/*.xml">
-            <manifest>
-                <attribute name="Specification-Version" value="${sVersion}" />
-                <attribute name="Implementation-Version" value="${sVersion}" />
-                <attribute name="Main-Class" value="com.googlecode.sweetened.Version" />
-            </manifest>
-        </jar>
-    </target>
+		<sync todir="${rtest.classes.dir}">
+			<preserveintarget>
+				<include name="**/*.class"/>
+			</preserveintarget>
+			<fileset dir="src" defaultexcludes="yes">
+				<include name="**/*.xml"/>
+			</fileset>
+		</sync>
+	</target>
 
-    <target name="clean" depends="init">
-        <delete dir="${build.dir}"/>
-    </target>
+	<target name="rtest" depends="rtest-classes" description="Run regression tests">
+		<junit printsummary="yes" showoutput="yes" fork="yes" forkmode="once">
+			<classpath path="${toString:junit.classpath}"/>
+			<classpath path="${classes.dir}" />
+			<classpath path="${rtest.classes.dir}" />
+			<formatter type="plain" usefile="false" />
+			<batchtest todir="${build.dir}">
+				<fileset dir="${rtest.classes.dir}">
+					<include name="${junit.special.tests}" />
+				</fileset>
+			</batchtest>
+		</junit>
+	</target>
 
-    <target name="all" depends="jar"/>
+	<target name="jar" depends="classes">
+		<jar jarfile="${build.dir}/sweetened.jar" basedir="${build.dir}/classes" includes="**/*.class,**/*.xml">
+			<manifest>
+				<attribute name="Specification-Version" value="${sVersion}" />
+				<attribute name="Implementation-Version" value="${sVersion}" />
+				<attribute name="Main-Class" value="com.googlecode.sweetened.Version" />
+			</manifest>
+		</jar>
+	</target>
 
-    <target name="javadoc" depends="init">
-        <mkdir dir="${build.javadoc.dir}"/>
-        <javadoc
-            destdir="${build.javadoc.dir}"
-            packagenames="*"
-            author="true"
-            version="true"
-            classpath="${toString:javadoc.classpath}"
-            Windowtitle="Sweetened Javadoc"
-        >
-            <fileset dir="${src.dir}">
-                <exclude name="**/test/**" />
-                <exclude name="**/*.xml" />
-            </fileset>
-            <doctitle><![CDATA[<h1>Sweetened</h1>]]></doctitle>
-            <bottom><![CDATA[<i>Copyright &#169; ${YEAR} Jon Stevens. All Rights Reserved. Build version: ${sVersion}</i>]]></bottom>
-        </javadoc>
+	<target name="clean" depends="init">
+		<delete dir="${build.dir}"/>
+	</target>
 
-        <sync todir="${javadoc.dir}" includeEmptyDirs="true">
-            <fileset dir="${build.javadoc.dir}" />
-            <preserveintarget>
-                <include name="**/.svn/**"/>
-            </preserveintarget>
-        </sync>
-    </target>
+	<target name="all" depends="jar"/>
 
-    <target name="dist" depends="clean, jar, javadoc">
-        <copy todir="${build.dist.dir}">
-            <fileset dir="${build.dir}">
-                <include name="javadoc/**" />
-            </fileset>
+	<target name="javadoc" depends="init">
+		<mkdir dir="${build.javadoc.dir}"/>
+		<javadoc
+			destdir="${build.javadoc.dir}"
+			packagenames="*"
+			author="true"
+			version="true"
+			classpath="${toString:javadoc.classpath}"
+			Windowtitle="Sweetened Javadoc"
+			>
+			<fileset dir="${src.dir}">
+				<exclude name="**/test/**" />
+				<exclude name="**/*.xml" />
+			</fileset>
+			<doctitle>
+				<![CDATA[<h1>Sweetened</h1>]]></doctitle>
+		<bottom>
+			<![CDATA[<i>Copyright &#169; ${YEAR} Jon Stevens. All Rights Reserved. Build version: ${sVersion}</i>]]></bottom>
+		</javadoc>
 
-            <fileset dir=".">
-                <include name="build.xml" />
-                <include name="example.xml" />
-                <include name="example-launch.xml" />
-                <include name="jar.properties" />
-                <include name="README.html" />
-            </fileset>
-        </copy>
+		<sync todir="${javadoc.dir}" includeEmptyDirs="true">
+			<fileset dir="${build.javadoc.dir}" />
+			<preserveintarget>
+				<include name="**/.svn/**"/>
+			</preserveintarget>
+		</sync>
+	</target>
 
-        <copy todir="${build.dist.dir}/lib">
-            <fileset dir="lib">
-                <include name="*.jar" />
-            	<exclude name="sweetened.jar" />
-            </fileset>
-            <fileset dir="${build.dir}">
-                <include name="sweetened.jar" />
-            </fileset>
-        </copy>
+	<target name="dist" depends="clean, jar, javadoc">
+		<copy todir="${build.dist.dir}">
+			<fileset dir="${build.dir}">
+				<include name="javadoc/**" />
+			</fileset>
 
-        <copy todir="${build.dist.dir}">
-            <fileset dir="${build.dir}">
-                <include name="sweetened.jar" />
-            </fileset>
-        </copy>
+			<fileset dir=".">
+				<include name="build.xml" />
+				<include name="example.xml" />
+				<include name="example-launch.xml" />
+				<include name="jar.properties" />
+				<include name="README.html" />
+			</fileset>
+		</copy>
 
-        <copy todir="${build.dist.dir}/src">
-            <fileset dir="${base.dir}/src">
-                <include name="**" />
-            </fileset>
-        </copy>
+		<copy todir="${build.dist.dir}/lib">
+			<fileset dir="lib">
+				<include name="*.jar" />
+				<exclude name="sweetened.jar" />
+			</fileset>
+			<fileset dir="${build.dir}">
+				<include name="sweetened.jar" />
+			</fileset>
+		</copy>
 
-        <dirname property="build.dist.dir.dirname" file="${build.dist.dir}" />
-        <basename property="build.dist.dir.basename" file="${build.dist.dir}" />
+		<copy todir="${build.dist.dir}">
+			<fileset dir="${build.dir}">
+				<include name="sweetened.jar" />
+			</fileset>
+		</copy>
 
-        <zip zipfile="${build.dist.zip}" basedir="${build.dist.dir.dirname}">
-            <include name="${build.dist.dir.basename}/**" />
-        </zip>
-    </target>
+		<copy todir="${build.dist.dir}/src">
+			<fileset dir="${base.dir}/src">
+				<include name="**" />
+			</fileset>
+		</copy>
 
-    <target name="upload" depends="init">
-        <gcupload projectname="sweetened"
-            userName="${gc.username}"
-            password="${gc.password}"
-            filename="${build.dist.zip}"
-            targetfilename="${build.dist.zip}"
-            summary="Sweetened distribution"
-            labels="Featured, Type-Package, OpSys-All" />
-    </target>
+		<dirname property="build.dist.dir.dirname" file="${build.dist.dir}" />
+		<basename property="build.dist.dir.basename" file="${build.dist.dir}" />
+
+		<zip zipfile="${build.dist.zip}" basedir="${build.dist.dir.dirname}">
+			<include name="${build.dist.dir.basename}/**" />
+		</zip>
+	</target>
+
+	<target name="upload" depends="init">
+	<gcupload projectname="sweetened"
+			userName="${gc.username}"
+			password="${gc.password}"
+			filename="${build.dist.zip}"
+			targetfilename="${build.dist.zip}"
+			summary="Sweetened distribution"
+			labels="Featured, Type-Package, OpSys-All" />
+	</target>
 </project>
