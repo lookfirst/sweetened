@@ -7,15 +7,16 @@ import java.io.File;
  *
  */
 public interface ProjectRepositoryInfo {
-	
+
 	/**
-	 * 
+	 *
 	 * @return true if the repository info is available.
 	 */
 	public boolean init(File baseDir);
-	
+
 	public String getBranch();
-	
+
 	public String getRevision();
-	
+
+	public void setRevision(String revision);
 }

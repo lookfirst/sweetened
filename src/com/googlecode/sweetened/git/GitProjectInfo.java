@@ -88,4 +88,8 @@ public class GitProjectInfo implements ProjectRepositoryInfo {
 		return this.revision;
 	}
 
+	@Override
+	public void setRevision(String revision) {
+		this.revision = revision;
+	}
 }
