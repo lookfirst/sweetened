@@ -10,7 +10,7 @@ import com.googlecode.sweetened.svn.SubversionProjectInfo;
 
 /**
  * Simple task which populates various sweetened properties based on repository.
- * 
+ *
  *
  * See the example.xml for an example of the usage.
  *
@@ -33,10 +33,10 @@ public class SweetenedVersionTask extends Task
         try
         {
         	ProjectRepositoryInfo info = getProjectInfo();
-        	
+
         	String branch = info.getBranch();
         	String revision = info.getRevision();
-        	
+
             this.getProject().setProperty(sVersionPath, branch);
 
             // ie: trunk-sweetened or branches-v10-sweetened (for use as eclipse project name, which can't have slashes)
@@ -58,13 +58,13 @@ public class SweetenedVersionTask extends Task
 
     /**
      * First try subversion, then try git, then just retrieve base info from the project.
-     * 
+     *
      * The method catches ClassDefNotFoundErrors so you don't have to include svn task
      * or jgit if you don't want to use them.
      */
     private ProjectRepositoryInfo getProjectInfo() {
     	File baseDir = this.getProject().getBaseDir();
-    	
+
     	ProjectRepositoryInfo info = null;
     	try {
     		info = new SubversionProjectInfo();
@@ -74,12 +74,16 @@ public class SweetenedVersionTask extends Task
     	} catch (Throwable e) {
     		/** ignore exceptions AND errors */
     	}
-    	
+
     	if (info == null) {
 	    	try {
 	    		info = new GitProjectInfo();
 	        	if (!info.init(baseDir)) {
 	        		info = null;
+	        	} else {
+		    		String revision = info.getRevision();
+		        	// only really need first 10 for git to figure things out
+		    		info.setRevision(revision.substring(0, 10));
 	        	}
 	    	} catch (Throwable e) {
 	    		/** ignore exceptions AND errors */
@@ -92,7 +96,7 @@ public class SweetenedVersionTask extends Task
     		info = new NullRepositoryInfo(this.getProject());
     		info.init(baseDir);
     	}
-    	
+
     	return info;
 	}
 

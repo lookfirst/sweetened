@@ -29,16 +29,16 @@ public class SubversionProjectInfo implements ProjectRepositoryInfo {
 
 	/** */
     private SVNClientManager manager = null;
-	
+
     private String branch = null;
     private String revision = null;
 
 	public boolean init(File baseDir) {
-        /* 
+        /*
          * Initializes the library to work with a repository via different
 	     * protocols.
 	     */
-		
+
 		/*
          * For using over http:// and https://
          */
@@ -57,11 +57,11 @@ public class SubversionProjectInfo implements ProjectRepositoryInfo {
          * Create the client manager with defaults
          */
         this.manager = SVNClientManager.newInstance();
-        
+
         /*
          * Now fetch the branch name and revision from svn info
          */
-       
+
         // Get the WC Client
         SVNWCClient client = this.getSvnClient().getWCClient();
         SVNInfo info = null;
@@ -75,7 +75,7 @@ public class SubversionProjectInfo implements ProjectRepositoryInfo {
         // Get the urls
         String url = info.getURL().toDecodedString();
         String repositoryRootUrl = info.getRepositoryRootURL().toDecodedString();
-        
+
         // we have a top level project, ie: http://foo.com/help
         if (url.equals(repositoryRootUrl)) {
             this.branch = url.substring(url.lastIndexOf('/') + 1);
@@ -83,12 +83,12 @@ public class SubversionProjectInfo implements ProjectRepositoryInfo {
             // ie: trunk/sweetened or branches/v10/sweetened
             this.branch = url.substring(repositoryRootUrl.length() + 1);
         }
-        
+
         this.revision = new Long(info.getRevision().getNumber()).toString();
 
         return true;
 	}
-	
+
 	@Override
 	public String getBranch() {
 		return this.branch;
@@ -99,7 +99,12 @@ public class SubversionProjectInfo implements ProjectRepositoryInfo {
 		return this.revision;
 	}
 
-    /** */
+	@Override
+	public void setRevision(String revision) {
+		this.revision = revision;
+	}
+
+	/** */
     private SVNClientManager getSvnClient() {
         return this.manager;
     }

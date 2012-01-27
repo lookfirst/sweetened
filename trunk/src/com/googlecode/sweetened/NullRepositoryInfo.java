@@ -11,14 +11,14 @@ import org.apache.tools.ant.Project;
 public class NullRepositoryInfo implements ProjectRepositoryInfo {
 
 	private static final String NULL_REVISION = "head";
-	
+
 	private String branch;
 	private Project project;
-	
+
 	public NullRepositoryInfo(Project project) {
 		this.project = project;
 	}
-	
+
 	@Override
 	public boolean init(File baseDir) {
 		// default branch is just the project name
@@ -34,6 +34,11 @@ public class NullRepositoryInfo implements ProjectRepositoryInfo {
 	@Override
 	public String getRevision() {
 		return NULL_REVISION;
+	}
+
+	@Override
+	public void setRevision(String revision) {
+		// no op
 	}
 
 }
